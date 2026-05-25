@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": [
+      { "item": "immersiveengineering:insulating_glass" },
+      { "item": "immersiveengineering:slag_glass" }
+    ],
+    "i": { "tag": "c:ingots/constantan" }
+  },
+  "pattern": [
+    " i ",
+    "cic",
+    "cic"
+  ],
+  "result": {
+    "count": 8,
+    "id": "alternatingflux:connector_af_relay"
+  }
+}

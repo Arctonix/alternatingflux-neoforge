@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "h": { "item": "immersiveengineering:connector_hv" },
+    "a": { "item": "alternatingflux:connector_af_relay" },
+    "b": { "item": "immersiveengineering:coil_hv" },
+    "c": { "tag": "c:ingots/constantan" },
+    "i": { "tag": "c:ingots/iron" }
+  },
+  "pattern": [
+    "h a",
+    "cbc",
+    "iii"
+  ],
+  "result": {
+    "count": 1,
+    "id": "alternatingflux:connector_af_transformer"
+  }
+}
