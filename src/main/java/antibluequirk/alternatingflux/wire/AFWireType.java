@@ -65,7 +65,7 @@ public class AFWireType extends WireType implements IEnergyWire
     public double getSlack()
     {
         // Matches the 1.12 original.
-        return 1.002;
+        return 1.003;
     }
 
     @Override
