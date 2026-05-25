@@ -1,0 +1,52 @@
+CHUNK 1 — AF RELAY — apply instructions
+========================================
+
+This adds the AF Wire Relay: the wire-to-wire connector that AF wire attaches to.
+AF is transmission-only, so there is NO machine connector — only this relay.
+
+WHAT'S IN HERE
+  src/main/java/antibluequirk/alternatingflux/block/AFBlocks.java      (NEW)
+  src/main/java/antibluequirk/alternatingflux/AlternatingFlux.java     (REPLACES yours)
+  src/main/resources/assets/alternatingflux/blockstates/connector_af_relay.json   (NEW)
+  src/main/resources/assets/alternatingflux/models/block/connector/relay_af.json  (NEW)
+  src/main/resources/assets/alternatingflux/models/block/connector/relay_af.obj   (NEW)
+  src/main/resources/assets/alternatingflux/models/block/connector/relay_af.mtl   (NEW)
+  src/main/resources/assets/alternatingflux/models/item/connector_af_relay.json   (NEW)
+
+HOW TO APPLY (from your project root: ~/Documents/"AF mod"/afmod)
+
+1. Unzip this over your project. From the folder where you downloaded chunk1.zip:
+     unzip -o chunk1.zip -d ~/Documents/"AF mod"/afmod
+   (-o overwrites AlternatingFlux.java with the new version — that's intended.)
+
+2. Fix the block texture folder to the singular atlas path (same fix we did for items).
+   The relay's texture must live in textures/block/ (singular), not textures/blocks/:
+     cd ~/Documents/"AF mod"/afmod/src/main/resources/assets/alternatingflux
+     mv textures/blocks textures/block
+   (This also pre-positions the transformer + passthrough textures for Chunk 2.)
+
+3. Build and run:
+     cd ~/Documents/"AF mod"/afmod
+     ./gradlew runClient
+
+TEST
+  - Creative world, open the Alternating Flux tab. There should now be an
+    "AF Wire Relay" block item alongside the coil and constantan wire.
+  - Place two AF relays some blocks apart.
+  - Take the AF Wire Coil, right-click one relay then the other. The AF wire
+    should string between them (salmon-coloured) and stay connected.
+  - Try right-clicking a stock IE HV relay with the AF coil: it should REFUSE
+    (wrong category). That rejection is the tier separation working.
+
+EXPECTED ROUGH EDGES (report these, they're fine)
+  - If the relay renders as a missing-model (black/purple) but still places and
+    accepts wire: the CODE works; only the model JSON needs a tweak. Tell me.
+  - No power flows yet between relays — that needs the AF Transformer (Chunk 2)
+    to get power onto the AF line in the first place. Connection + rejection is
+    all we're testing here.
+
+IF IT BUILDS AND THE RELAY PLACES + ACCEPTS AF WIRE + REJECTS HV:
+     cd ~/Documents/"AF mod"/afmod
+     git add -A
+     git commit -m "Chunk 1: AF relay (reuses EnergyConnectorBlockEntity via SPEC_TO_TYPE injection)"
+   Then we move to Chunk 2 (the transformer).

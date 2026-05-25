@@ -1,0 +1,31 @@
+CHUNK 1c — THE REAL placement fix (supersedes 1b)
+==================================================
+Root cause found: the AF relay's block ITEM was a vanilla BlockItem. IE only
+applies connector facing in Block#onIEBlockPlacedBy, which is invoked solely by
+IE's BlockItemIE (not vanilla BlockItem). So facing was never set -> stuck at
+default NORTH (one direction only) AND the relay popped off on any neighbour
+change (it believed its mount, the block to its north, had disappeared).
+
+Fix: register the block item as BlockItemIE. This single change fixes BOTH the
+one-direction placement and the break-when-adjacent bug.
+
+This zip also re-includes the corrected blockstate (with waterlogged) and the
+lang fix (AF Wire Relay name), so it doesn't matter whether 1b applied.
+
+APPLY:
+  cd ~/Downloads
+  unzip -o chunk1c.zip -d ~/Documents/"AF mod"/afmod
+  cd ~/Documents/"AF mod"/afmod
+  ./gradlew runClient
+
+TEST:
+  - Name reads "AF Wire Relay".
+  - Place on floor, wall, ceiling, and the SIDE of a pole - it should orient to
+    the clicked surface every time (like a stock HV relay).
+  - Place two relays adjacent to each other - they should BOTH stay put.
+  - String AF coil between two relays: connects, salmon-coloured, holds.
+  - AF coil on a stock HV relay: refused (tier separation).
+
+IF ALL GOOD:
+  git add -A
+  git commit -m "Chunk 1 complete: AF relay places 6-way + survives neighbours (BlockItemIE)"

@@ -1,5 +1,6 @@
 package antibluequirk.alternatingflux;
 
+import antibluequirk.alternatingflux.block.AFBlocks;
 import antibluequirk.alternatingflux.wire.AFWireType;
 import blusunrize.immersiveengineering.common.items.WireCoilItem;
 import net.minecraft.core.registries.Registries;
@@ -12,6 +13,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -19,9 +21,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * Alternating Flux — long-distance super-high-voltage wire tier for Immersive
  * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.21.1 / NeoForge.
  *
- * FOUNDATION milestone: wire type, config, items, creative tab. The AF relay
- * and AF transformer blocks (the heavy lift against IE's connector internals)
- * are the next phase — see README "Remaining work".
+ * Foundation: wire type, config, items. (PROVEN in-game.)
+ * Chunk 1: AF relay block (this commit).
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux
@@ -32,13 +33,11 @@ public class AlternatingFlux
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Reuse IE's own wire-coil item for AF — this gives us correct wire placement,
-    // length checking and consumption for free. AFWireType.init() must run before
-    // this supplier is invoked (we call it in the constructor, below).
+    // Reuse IE's own wire-coil item for AF — gives correct wire placement,
+    // length checking and consumption for free.
     public static final DeferredHolder<Item, WireCoilItem> AF_WIRE_COIL =
             ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
 
-    // Crafting material — Constantan wire (cut from a Constantan plate).
     public static final DeferredHolder<Item, Item> WIRE_CONSTANTAN =
             ITEMS.register("wire_constantan", () -> new Item(new Item.Properties()));
 
@@ -49,23 +48,30 @@ public class AlternatingFlux
                     .displayItems((params, output) -> {
                         output.accept(AF_WIRE_COIL.get());
                         output.accept(WIRE_CONSTANTAN.get());
-                        // TODO phase 2: add AF relay + AF transformer block items here.
+                        output.accept(AFBlocks.CONNECTOR_AF_RELAY_ITEM.get());
+                        // TODO Chunk 2: add AF transformer block item here.
                     })
                     .build());
 
     public AlternatingFlux(IEventBus modBus, ModContainer container)
     {
-        // Register the AF wire type during construction, before item registration
-        // resolves AF_WIRE_COIL (which references AFWireType.AF).
+        // Register the AF wire type before item registration resolves AF_WIRE_COIL.
         AFWireType.init();
 
         ITEMS.register(modBus);
         TABS.register(modBus);
+        AFBlocks.register(modBus);
+
+        modBus.addListener(this::commonSetup);
 
         container.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+    }
 
-        // TODO phase 2: register AF relay + transformer blocks, block entities,
-        // capabilities, and the AF feedthrough via WireApi.registerFeedthroughForWiretype.
+    private void commonSetup(FMLCommonSetupEvent event)
+    {
+        // Inject AF into IE's connector maps once registries are populated.
+        // enqueueWork ensures this runs on the main thread, after registration.
+        event.enqueueWork(AFBlocks::injectIEMaps);
     }
 
     public static ResourceLocation rl(String path)
