@@ -1,0 +1,39 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "Custom — see README / original Alternating Flux license"
+issueTrackerURL = "https://github.com/AntiBlueQuirk/alternatingflux/issues"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "AntiBlueQuirk (original), port"
+description = '''
+Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
+Immersive Engineering. Very low loss over distance; cannot power machines
+directly — step down to HV through an AF Transformer. Ported to 1.21.1 / NeoForge.
+'''
+
+# Hard dependency on Immersive Engineering.
+[[dependencies.${mod_id}]]
+modId = "immersiveengineering"
+type = "required"
+versionRange = "[12.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# NeoForge.
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+# Minecraft.
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"

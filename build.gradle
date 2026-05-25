@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev'
+}
+
+version = "${version_minecraft}-${mod_version}"
+group = mod_group
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+repositories {
+    mavenCentral()
+    // CurseMaven — used to pull Immersive Engineering as a compile/runtime dependency.
+    maven {
+        url 'https://cfa2.cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    // BlameJared maven also hosts IE; kept as a fallback source.
+    maven {
+        name 'BlameJared'
+        url 'https://maven.blamejared.com'
+    }
+}
+
+neoForge {
+    version = project.version_neoforge
+
+    parchment {
+        mappingsVersion = project.version_parchment
+        minecraftVersion = project.version_parchment_mc
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // Immersive Engineering — the mod we extend. Pulled via CurseMaven.
+    // Format: curse.maven:<slug>-<projectId>:<fileId>
+    implementation "curse.maven:immersive-engineering-${curse_ie_project}:${curse_ie_file}"
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            mod_id        : mod_id,
+            mod_version   : mod_version,
+            mod_name      : mod_name,
+            version_minecraft: version_minecraft,
+            version_neoforge : version_neoforge,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
