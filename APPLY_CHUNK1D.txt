@@ -1,0 +1,26 @@
+CHUNK 1d — relay wire-anchor + model height fix
+================================================
+Both cosmetic bugs (wire attaching at the relay's MIDDLE instead of the top, and
+the inventory model sitting low/squat vs the HV relay) come from the same source:
+IE's private static LENGTH map drives the connector's wire-attachment point AND
+its render/collision box, keyed by (voltage, relay). With no "AF" entry it falls
+back to 0.5; HV relay uses 0.875.
+
+Fix: AFBlocks.injectIEMaps() now also reflectively injects ("AF", true) = 0.875F
+into that map, matching the HV relay. (final only fixes the map reference, not its
+contents, so the put is safe.)
+
+APPLY (replaces AFBlocks.java only):
+  cd ~/Downloads
+  unzip -o chunk1d.zip -d ~/Documents/"AF mod"/afmod
+  cd ~/Documents/"AF mod"/afmod
+  ./gradlew runClient
+
+TEST:
+  - Place an AF relay, string AF wire to another: the wire should now attach at the
+    TOP of the relay, matching how it looked on the stock HV relays.
+  - The AF relay item in inventory should sit at the same height as the HV relay.
+
+IF GOOD:
+  git add -A
+  git commit -m "Chunk 1d: fix AF relay wire anchor + model height (inject LENGTH=0.875)"
