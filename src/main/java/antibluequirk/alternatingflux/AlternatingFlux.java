@@ -22,7 +22,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.21.1 / NeoForge.
  *
  * Foundation: wire type, config, items. (PROVEN in-game.)
- * Chunk 1: AF relay block (this commit).
+ * Chunk 1: AF relay. (PROVEN in-game.)
+ * Chunk 2: AF transformer (HV<->AF step-down). (this commit.)
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux
@@ -33,8 +34,6 @@ public class AlternatingFlux
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Reuse IE's own wire-coil item for AF — gives correct wire placement,
-    // length checking and consumption for free.
     public static final DeferredHolder<Item, WireCoilItem> AF_WIRE_COIL =
             ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
 
@@ -49,13 +48,12 @@ public class AlternatingFlux
                         output.accept(AF_WIRE_COIL.get());
                         output.accept(WIRE_CONSTANTAN.get());
                         output.accept(AFBlocks.CONNECTOR_AF_RELAY_ITEM.get());
-                        // TODO Chunk 2: add AF transformer block item here.
+                        output.accept(AFBlocks.TRANSFORMER_AF_ITEM.get());
                     })
                     .build());
 
     public AlternatingFlux(IEventBus modBus, ModContainer container)
     {
-        // Register the AF wire type before item registration resolves AF_WIRE_COIL.
         AFWireType.init();
 
         ITEMS.register(modBus);
@@ -69,8 +67,6 @@ public class AlternatingFlux
 
     private void commonSetup(FMLCommonSetupEvent event)
     {
-        // Inject AF into IE's connector maps once registries are populated.
-        // enqueueWork ensures this runs on the main thread, after registration.
         event.enqueueWork(AFBlocks::injectIEMaps);
     }
 

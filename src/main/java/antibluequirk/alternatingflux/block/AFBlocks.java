@@ -5,6 +5,7 @@ import blusunrize.immersiveengineering.common.blocks.BlockItemIE;
 import blusunrize.immersiveengineering.common.blocks.generic.ConnectorBlock;
 import blusunrize.immersiveengineering.common.blocks.metal.BasicConnectorBlock;
 import blusunrize.immersiveengineering.common.blocks.metal.EnergyConnectorBlockEntity;
+import blusunrize.immersiveengineering.common.blocks.metal.TransformerBlockItem;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.world.item.Item;
@@ -18,24 +19,17 @@ import java.lang.reflect.Field;
 import java.util.Set;
 
 /**
- * Registration for AF connector blocks.
+ * Registration for AF connector blocks: the AF Wire Relay (Chunk 1) and the
+ * AF Transformer (Chunk 2).
  *
- * Reuses IE {@link EnergyConnectorBlockEntity} with voltage="AF"; our own block +
- * BE-type, injected into IE's public-static SPEC_TO_TYPE / NAME_TO_SPEC maps in
- * {@link #injectIEMaps()} (called from common setup). Compatibility is a string
- * match on category, so an "AF" relay auto-accepts AF wire and rejects HV. AF is
- * transmission-only, so only the RELAY variant exists.
+ * Relay: reuses IE EnergyConnectorBlockEntity with voltage="AF"; our own block +
+ * BE-type, injected into IE's public-static SPEC_TO_TYPE / NAME_TO_SPEC maps, plus
+ * a reflective inject into the private LENGTH map (wire anchor / render height).
+ * Block item MUST be BlockItemIE so placement facing is applied.
  *
- * Block item MUST be {@link BlockItemIE} (not vanilla BlockItem) so IE's
- * onIEBlockPlacedBy fires and placement facing is applied.
- *
- * The relay's wire-attachment point AND render/collision box come from IE's
- * private static LENGTH map, keyed by (voltage, relay). Without an entry it
- * defaults to 0.5 — which anchors the wire at the connector's MIDDLE and makes
- * the model sit low (HV relay uses 0.875). We reflectively inject ("AF", true)=0.875
- * to match the HV relay's look. The field is private static final, but final only
- * fixes the reference; the map contents are still mutable, so a reflective put is
- * safe and needs no setAccessible-on-final hacks.
+ * Transformer: our own AFTransformerBlock (extends IE ConnectorBlock) + 
+ * AFTransformerBlockEntity (extends IE TransformerBlockEntity, high=AF / low=HV).
+ * 3-tall multiblock; item is IE's TransformerBlockItem (multiblock-aware).
  */
 public final class AFBlocks
 {
@@ -47,10 +41,9 @@ public final class AFBlocks
 
     public static final String AF_VOLTAGE = "AF";
     public static final Pair<String, Boolean> AF_RELAY_SPEC = Pair.of(AF_VOLTAGE, true);
+    private static final float AF_RELAY_LENGTH = 0.875F; // match HV relay anchor/height
 
-    // Match HV relay's anchor/length so the wire attaches at the top and the model
-    // sits at the correct height.
-    private static final float AF_RELAY_LENGTH = 0.875F;
+    // ---- AF Wire Relay (Chunk 1) -----------------------------------------
 
     public static final DeferredBlock<BasicConnectorBlock<EnergyConnectorBlockEntity>> CONNECTOR_AF_RELAY =
             BLOCKS.register("connector_af_relay", () ->
@@ -72,7 +65,26 @@ public final class AFBlocks
         return CONNECTOR_AF_RELAY_BE.get();
     }
 
-    /** Inject AF into IE's connector maps. Call once, during common setup. */
+    // ---- AF Transformer (Chunk 2) ----------------------------------------
+
+    public static final DeferredBlock<AFTransformerBlock> TRANSFORMER_AF =
+            BLOCKS.register("connector_af_transformer", () ->
+                    new AFTransformerBlock(ConnectorBlock.PROPERTIES.get()));
+
+    public static final DeferredHolder<Item, TransformerBlockItem> TRANSFORMER_AF_ITEM =
+            AlternatingFlux.ITEMS.register("connector_af_transformer",
+                    () -> new TransformerBlockItem(TRANSFORMER_AF.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AFTransformerBlockEntity>> TRANSFORMER_AF_BE =
+            BLOCK_ENTITIES.register("connector_af_transformer", () ->
+                    new BlockEntityType<>(
+                            AFTransformerBlockEntity::new,
+                            Set.of(TRANSFORMER_AF.get()),
+                            null));
+
+    // ---- IE map injection (relay) ----------------------------------------
+
+    /** Inject AF relay into IE's connector maps. Call once, during common setup. */
     public static void injectIEMaps()
     {
         EnergyConnectorBlockEntity.SPEC_TO_TYPE.put(AF_RELAY_SPEC, CONNECTOR_AF_RELAY_BE::get);
@@ -94,8 +106,6 @@ public final class AFBlocks
         }
         catch(ReflectiveOperationException e)
         {
-            // Non-fatal: without this the relay still works, it just renders with the
-            // wire anchored at the middle and sits a bit low. Log and continue.
             org.slf4j.LoggerFactory.getLogger(AlternatingFlux.MODID).warn(
                     "Could not inject AF connector LENGTH; relay wire anchor will use the 0.5 default.", e);
         }
