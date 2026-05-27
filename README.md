@@ -35,9 +35,13 @@ Think of it as the EHV transmission backbone of your power grid: bulk power acro
 - **NeoForge** 21.1.x
 - **Immersive Engineering** (required dependency — install it alongside this mod)
 
+## Download
+
+Get it from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/alternating-flux-neoforge), [Modrinth](https://modrinth.com/mod/alternating-flux-neoforge), or [GitHub Releases](../../releases).
+
 ## Installation
 
-Drop the `alternatingflux-x.x.x.jar` into your `mods/` folder alongside Immersive Engineering and NeoForge. Needed on both client and server.
+Drop the `alternatingflux-1.21.1-1.0.0-beta.1.jar` into your `mods/` folder alongside Immersive Engineering and NeoForge. Needed on both client and server.
 
 ## Configuration
 
