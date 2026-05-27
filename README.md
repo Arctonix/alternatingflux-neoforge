@@ -50,11 +50,12 @@ Server config (`alternatingflux-server.toml`) exposes:
 
 ## Credits
 
-- **AntiBlueQuirk** — original creator of Alternating Flux. The concept, design, textures, and models are theirs.
-- **Arctonix** — 1.21.1 / NeoForge port.
-- **BluSunrize and the Immersive Engineering team** — for IE and its API, which this addon builds on.
+Alternating Flux was originally created by [AntiBlueQuirk](https://github.com/AntiBlueQuirk) (for Minecraft 1.12.2). The concept, design, and original artwork are theirs — this is an update of their work to 1.21.1, shared publicly with their permission.
+
+- **AntiBlueQuirk** — original creator (mod, concept, design, assets) · [original repo](https://github.com/AntiBlueQuirk/alternatingflux)
+- **Arctonix** — 1.21.1 / NeoForge update
+- **BluSunrize / Immersive Engineering team** — for IE and its API
 
 ## License
 
-This project follows the original's licensing under Blu's License of Common Sense.
-Free to use, visible source, credit retained. Not for sale or paywalling.
+Follows the original under Blus License of Common Sense: free, visible source, credit retained, no paywalling.
