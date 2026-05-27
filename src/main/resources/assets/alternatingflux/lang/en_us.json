@@ -1,0 +1,18 @@
+{
+  "itemGroup.alternatingflux": "Alternating Flux",
+
+  "item.alternatingflux.wirecoil_af": "AF Wire Coil",
+  "item.alternatingflux.wire_constantan": "Constantan Wire",
+
+  "block.alternatingflux.connector_af_relay": "AF Wire Relay",
+  "block.alternatingflux.connector_af_transformer": "AF Transformer",
+
+  "ie.manual.entry.alternatingflux.name": "Alternating Flux",
+  "ie.manual.entry.alternatingflux.subtext": "Not for use on animals",
+  "ie.manual.entry.alternatingflux0": "By carefully modulating Flux, it is possible to transmit it over great distances with minimal power loss. This form of Flux is called Alternating Flux. However, because all machines operate on normal Flux, Alternating Flux cannot be directly used for powering machines.",
+  "ie.manual.entry.alternatingfluxWire": "By forming Constantan into wire and coating it in Graphite, the resistance of the wire is greatly reduced while under the influence of an alternating fluxfield.",
+  "ie.manual.entry.alternatingflux1": "AF Wires have much lower power loss than other wires and can handle great current. Excellent for long-distance power transfer. Loss is further reduced as connectors near maximum capacity.",
+  "ie.manual.entry.alternatingfluxRelay": "AF Relays are made like HV Relays. Because Alternating Flux cannot power machines, no AF Connector exists - only the relay.",
+  "ie.manual.entry.alternatingfluxTransformer": "To modulate Flux into Alternating Flux and back, an AF Transformer is required. AF converts to and from Flux at a 1:1 rate.",
+  "ie.manual.entry.alternatingflux3": "Note: like all IE wires, an AF line only transfers power while both endpoints are in loaded chunks. Long AF runs cross more chunks, so keep them chunk-loaded."
+}

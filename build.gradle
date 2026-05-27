@@ -1,0 +1,99 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+version = "${version_minecraft}-${mod_version}"
+group = mod_group
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+minecraft {
+    // Parchment mappings for friendlier method/parameter names.
+    mappings channel: 'parchment', version: "${version_parchment}-${version_parchment_mc}"
+
+    copyIdeResources = true
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run-server')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            arg '--nogui'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    // CurseMaven — used to pull Immersive Engineering as a dependency.
+    maven {
+        url 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    // BlameJared as a fallback IE source.
+    maven {
+        name 'BlameJared'
+        url 'https://maven.blamejared.com'
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
+
+    // Immersive Engineering — the mod we extend. Pulled via CurseMaven.
+    // Format: curse.maven:<slug>-<projectId>:<fileId>
+    implementation fg.deobf("curse.maven:immersive-engineering-${curse_ie_project}:${curse_ie_file}")
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            mod_id           : mod_id,
+            mod_version      : mod_version,
+            mod_name         : mod_name,
+            version_minecraft: version_minecraft,
+            version_forge    : version_forge,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : "AntiBlueQuirk (original) / Arctonix (port)",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : mod_id,
+                "Implementation-Version"  : mod_version,
+                "Implementation-Vendor"   : "Arctonix",
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')

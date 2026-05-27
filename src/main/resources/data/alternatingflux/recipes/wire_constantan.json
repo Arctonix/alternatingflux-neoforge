@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "tag": "forge:plates/constantan" },
+    { "item": "immersiveengineering:wirecutter" }
+  ],
+  "result": {
+    "item": "alternatingflux:wire_constantan",
+    "count": 4
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:block/block",
+  "dynamic": false,
+  "inner_model": {
+    "parent": "minecraft:block/block",
+    "automatic_culling": false,
+    "flip_v": true,
+    "loader": "forge:obj",
+    "model": "alternatingflux:models/block/connector/transformer_af_right.obj",
+    "textures": {
+      "particle": "alternatingflux:block/connector_transformer_af"
+    }
+  },
+  "loader": "immersiveengineering:basic_split",
+  "split_parts": [
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 2, 0]
+  ],
+  "textures": {
+    "particle": "alternatingflux:block/connector_transformer_af"
+  }
+}
