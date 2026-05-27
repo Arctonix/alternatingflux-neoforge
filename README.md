@@ -58,4 +58,4 @@ Alternating Flux was originally created by [AntiBlueQuirk](https://github.com/An
 
 ## License
 
-Follows the original under Blus License of Common Sense: free, visible source, credit retained, no paywalling.
+Shared with the permission of the original author, AntiBlueQuirk. Free, visible source, credit retained, no paywalling — see the [LICENSE](LICENSE) file for details.
