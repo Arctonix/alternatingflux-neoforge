@@ -7,11 +7,12 @@ issueTrackerURL = "https://github.com/AntiBlueQuirk/alternatingflux/issues"
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
-authors = "AntiBlueQuirk (original), port"
+authors = "AntiBlueQuirk (original), Arctonix (1.21.1 port)"
 description = '''
-Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
-Immersive Engineering. Very low loss over distance; cannot power machines
-directly — step down to HV through an AF Transformer. Ported to 1.21.1 / NeoForge.
+Adds Alternating Flux, long-distance super-high-voltage wire tiers for Immersive
+Engineering. Two tiers — AF and the higher UAF (Ultra High Alternating Flux) — each
+with very low loss over distance. Neither powers machines directly; step down to HV
+through a transformer (HV<->AF, HV<->UAF, or AF<->UAF). Ported to 1.21.1 / NeoForge.
 '''
 
 # Hard dependency on Immersive Engineering.

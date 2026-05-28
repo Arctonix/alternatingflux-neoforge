@@ -20,6 +20,11 @@ public final class Config
         public final DoubleValue lossRatio;
         public final IntValue wireColour;
 
+        public final IntValue uafTransferRate;
+        public final IntValue uafMaxLength;
+        public final DoubleValue uafLossRatio;
+        public final IntValue uafWireColour;
+
         Server(ModConfigSpec.Builder b)
         {
             b.push("alternating_flux");
@@ -32,7 +37,7 @@ public final class Config
                     .comment(
                             "Maximum length of a single AF wire, in blocks.",
                             "There is no hard cap in IE; longer wires simply cross more chunks, so keep",
-                            "both endpoints chunk-loaded. Default 64.")
+                            "both endpoints chunk-loaded. Default 96.")
                     .defineInRange("maxLength", 96, 1, 1024);
 
             lossRatio = b
@@ -45,6 +50,32 @@ public final class Config
             wireColour = b
                     .comment("RGB colour of the AF wire. Default 0xf6866c (original salmon).")
                     .defineInRange("wireColour", 0xf6866c, 0, 0xffffff);
+
+            b.pop();
+
+            b.push("ultra_high_alternating_flux");
+
+            uafTransferRate = b
+                    .comment("UAF wire transfer rate in IF/t. Default 524288 = 16x modern HV (32768) / 4x AF.")
+                    .defineInRange("transferRate", 524288, 0, Integer.MAX_VALUE);
+
+            uafMaxLength = b
+                    .comment(
+                            "Maximum length of a single UAF wire, in blocks.",
+                            "Same span as AF. Keep both endpoints chunk-loaded. Default 96.")
+                    .defineInRange("maxLength", 96, 1, 1024);
+
+            uafLossRatio = b
+                    .comment(
+                            "Power lost across a full-length UAF run (loss = lossRatio * length / maxLength,",
+                            "identical to IE's own energy-wire formula). Default 0.0001 - one-fifth of AF's",
+                            "0.0005, giving UAF the same ~5x efficiency jump over AF that AF has over HV",
+                            "(HV is 0.0008 over 32 blocks; AF 0.0005 over 96; UAF 0.0001 over 96).")
+                    .defineInRange("lossRatio", 0.0001, 0.0, 1.0);
+
+            uafWireColour = b
+                    .comment("RGB colour of the UAF wire. Default 0x8b3fd6 (purple).")
+                    .defineInRange("wireColour", 0x8b3fd6, 0, 0xffffff);
 
             b.pop();
         }

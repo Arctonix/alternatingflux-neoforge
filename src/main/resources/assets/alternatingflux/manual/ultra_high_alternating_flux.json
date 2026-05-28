@@ -1,0 +1,19 @@
+{
+  "wirecoil": {
+    "type": "crafting",
+    "recipe": "alternatingflux:wirecoil_uaf"
+  },
+  "relay": {
+    "type": "crafting",
+    "recipe": "alternatingflux:connector_uaf_relay"
+  },
+  "transformers": {
+    "type": "crafting",
+    "recipes": [
+      [
+        { "recipe": "alternatingflux:connector_uaf_transformer_hv" },
+        { "recipe": "alternatingflux:connector_uaf_transformer_af" }
+      ]
+    ]
+  }
+}

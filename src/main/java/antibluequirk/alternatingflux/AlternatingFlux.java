@@ -2,6 +2,7 @@ package antibluequirk.alternatingflux;
 
 import antibluequirk.alternatingflux.block.AFBlocks;
 import antibluequirk.alternatingflux.wire.AFWireType;
+import antibluequirk.alternatingflux.wire.UAFWireType;
 import blusunrize.immersiveengineering.common.items.WireCoilItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -18,12 +19,16 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Alternating Flux — long-distance super-high-voltage wire tier for Immersive
+ * Alternating Flux — long-distance super-high-voltage wire tiers for Immersive
  * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.21.1 / NeoForge.
  *
- * Foundation: wire type, config, items. (PROVEN in-game.)
- * Chunk 1: AF relay. (PROVEN in-game.)
- * Chunk 2: AF transformer (HV<->AF step-down). (this commit.)
+ * Two tiers, each its own wire/relay/transformer network:
+ *   - AF  : the base long-distance tier; HV&lt;-&gt;AF step-down via the AF Transformer.
+ *   - UAF : the higher "Ultra High AF" tier, bridged to lower tiers by the
+ *           HV&lt;-&gt;UAF and AF&lt;-&gt;UAF transformers.
+ *
+ * This class wires up the shared registration: items, the creative tab, the
+ * config, and the deferred IE-map injection (see {@link AFBlocks#injectIEMaps()}).
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux
@@ -37,6 +42,9 @@ public class AlternatingFlux
     public static final DeferredHolder<Item, WireCoilItem> AF_WIRE_COIL =
             ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
 
+    public static final DeferredHolder<Item, WireCoilItem> UAF_WIRE_COIL =
+            ITEMS.register("wirecoil_uaf", () -> new WireCoilItem(UAFWireType.UAF));
+
     public static final DeferredHolder<Item, Item> WIRE_CONSTANTAN =
             ITEMS.register("wire_constantan", () -> new Item(new Item.Properties()));
 
@@ -49,12 +57,17 @@ public class AlternatingFlux
                         output.accept(WIRE_CONSTANTAN.get());
                         output.accept(AFBlocks.CONNECTOR_AF_RELAY_ITEM.get());
                         output.accept(AFBlocks.TRANSFORMER_AF_ITEM.get());
+                        output.accept(UAF_WIRE_COIL.get());
+                        output.accept(AFBlocks.CONNECTOR_UAF_RELAY_ITEM.get());
+                        output.accept(AFBlocks.TRANSFORMER_UAF_HV_ITEM.get());
+                        output.accept(AFBlocks.TRANSFORMER_UAF_AF_ITEM.get());
                     })
                     .build());
 
     public AlternatingFlux(IEventBus modBus, ModContainer container)
     {
         AFWireType.init();
+        UAFWireType.init();
 
         ITEMS.register(modBus);
         TABS.register(modBus);

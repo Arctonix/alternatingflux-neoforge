@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/block",
+  "automatic_culling": false,
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "alternatingflux:models/block/connector/relay_uaf.obj",
+  "textures": {
+    "particle": "alternatingflux:block/connector_relay_uaf"
+  }
+}

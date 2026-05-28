@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": { "tag": "c:wires/constantan" },
+    "a": { "item": "alternatingflux:wirecoil_af" },
+    "g": { "tag": "c:ingots/hop_graphite" }
+  },
+  "pattern": [
+    "gig",
+    "iai",
+    "gig"
+  ],
+  "result": {
+    "count": 4,
+    "id": "alternatingflux:wirecoil_uaf"
+  }
+}

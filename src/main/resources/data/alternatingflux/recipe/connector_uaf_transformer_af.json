@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": { "item": "alternatingflux:connector_af_relay" },
+    "u": { "item": "alternatingflux:connector_uaf_relay" },
+    "b": { "item": "alternatingflux:wirecoil_af" },
+    "c": { "tag": "c:plates/constantan" },
+    "i": { "tag": "c:ingots/steel" }
+  },
+  "pattern": [
+    "a u",
+    "cbc",
+    "iii"
+  ],
+  "result": {
+    "count": 1,
+    "id": "alternatingflux:connector_uaf_transformer_af"
+  }
+}

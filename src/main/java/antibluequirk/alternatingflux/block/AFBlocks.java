@@ -43,6 +43,15 @@ public final class AFBlocks
     public static final Pair<String, Boolean> AF_RELAY_SPEC = Pair.of(AF_VOLTAGE, true);
     private static final float AF_RELAY_LENGTH = 0.875F; // match HV relay anchor/height
 
+    public static final String UAF_VOLTAGE = "UAF";
+    public static final Pair<String, Boolean> UAF_RELAY_SPEC = Pair.of(UAF_VOLTAGE, true);
+    // Wire-attach height tracks the model top: IE's getConnectionOffset gives
+    // attachY = LENGTH - renderDiameter/2. The UAF relay model is exactly 0.5 taller
+    // than the AF relay (maxY 1.36875 vs 0.86875) and both wires share the same
+    // renderDiameter, so AF's 0.875 + 0.5 puts the wire at the UAF top cup the same
+    // way 0.875 does for the AF relay.
+    private static final float UAF_RELAY_LENGTH = 1.375F; // AF's 0.875 + 0.5 (model is 0.5 taller)
+
     // ---- AF Wire Relay (Chunk 1) -----------------------------------------
 
     public static final DeferredBlock<BasicConnectorBlock<EnergyConnectorBlockEntity>> CONNECTOR_AF_RELAY =
@@ -82,6 +91,78 @@ public final class AFBlocks
                             Set.of(TRANSFORMER_AF.get()),
                             null));
 
+    // ---- UAF Wire Relay --------------------------------------------------
+
+    public static final DeferredBlock<BasicConnectorBlock<EnergyConnectorBlockEntity>> CONNECTOR_UAF_RELAY =
+            BLOCKS.register("connector_uaf_relay", () ->
+                    new BasicConnectorBlock<>(ConnectorBlock.PROPERTIES.get(), AFBlocks::uafRelayType));
+
+    public static final DeferredHolder<Item, BlockItemIE> CONNECTOR_UAF_RELAY_ITEM =
+            AlternatingFlux.ITEMS.register("connector_uaf_relay",
+                    () -> new BlockItemIE(CONNECTOR_UAF_RELAY.get(), new Item.Properties()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnergyConnectorBlockEntity>> CONNECTOR_UAF_RELAY_BE =
+            BLOCK_ENTITIES.register("connector_uaf_relay", () ->
+                    new BlockEntityType<>(
+                            (pos, state) -> new EnergyConnectorBlockEntity(UAF_VOLTAGE, true, pos, state),
+                            Set.of(CONNECTOR_UAF_RELAY.get()),
+                            null));
+
+    private static BlockEntityType<EnergyConnectorBlockEntity> uafRelayType()
+    {
+        return CONNECTOR_UAF_RELAY_BE.get();
+    }
+
+    // ---- UAF Transformers (HV<->UAF and AF<->UAF) ------------------------
+
+    // HV <-> UAF
+    public static final DeferredBlock<UAFTransformerBlock> TRANSFORMER_UAF_HV =
+            BLOCKS.register("connector_uaf_transformer_hv", () ->
+                    new UAFTransformerBlock(ConnectorBlock.PROPERTIES.get(), AFBlocks::uafHvType));
+
+    public static final DeferredHolder<Item, TransformerBlockItem> TRANSFORMER_UAF_HV_ITEM =
+            AlternatingFlux.ITEMS.register("connector_uaf_transformer_hv",
+                    () -> new TransformerBlockItem(TRANSFORMER_UAF_HV.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<UAFTransformerBlockEntity>> TRANSFORMER_UAF_HV_BE =
+            BLOCK_ENTITIES.register("connector_uaf_transformer_hv", () ->
+                    new BlockEntityType<>(
+                            (pos, state) -> new UAFTransformerBlockEntity(
+                                    uafHvType(),
+                                    blusunrize.immersiveengineering.api.wires.WireType.HV_CATEGORY,
+                                    pos, state),
+                            Set.of(TRANSFORMER_UAF_HV.get()),
+                            null));
+
+    private static BlockEntityType<UAFTransformerBlockEntity> uafHvType()
+    {
+        return TRANSFORMER_UAF_HV_BE.get();
+    }
+
+    // AF <-> UAF
+    public static final DeferredBlock<UAFTransformerBlock> TRANSFORMER_UAF_AF =
+            BLOCKS.register("connector_uaf_transformer_af", () ->
+                    new UAFTransformerBlock(ConnectorBlock.PROPERTIES.get(), AFBlocks::uafAfType));
+
+    public static final DeferredHolder<Item, TransformerBlockItem> TRANSFORMER_UAF_AF_ITEM =
+            AlternatingFlux.ITEMS.register("connector_uaf_transformer_af",
+                    () -> new TransformerBlockItem(TRANSFORMER_UAF_AF.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<UAFTransformerBlockEntity>> TRANSFORMER_UAF_AF_BE =
+            BLOCK_ENTITIES.register("connector_uaf_transformer_af", () ->
+                    new BlockEntityType<>(
+                            (pos, state) -> new UAFTransformerBlockEntity(
+                                    uafAfType(),
+                                    AF_VOLTAGE,
+                                    pos, state),
+                            Set.of(TRANSFORMER_UAF_AF.get()),
+                            null));
+
+    private static BlockEntityType<UAFTransformerBlockEntity> uafAfType()
+    {
+        return TRANSFORMER_UAF_AF_BE.get();
+    }
+
     // ---- IE map injection (relay) ----------------------------------------
 
     /** Inject AF relay into IE's connector maps. Call once, during common setup. */
@@ -90,6 +171,9 @@ public final class AFBlocks
         EnergyConnectorBlockEntity.SPEC_TO_TYPE.put(AF_RELAY_SPEC, CONNECTOR_AF_RELAY_BE::get);
         EnergyConnectorBlockEntity.NAME_TO_SPEC.put(
                 AlternatingFlux.rl("connector_af_relay"), AF_RELAY_SPEC);
+        EnergyConnectorBlockEntity.SPEC_TO_TYPE.put(UAF_RELAY_SPEC, CONNECTOR_UAF_RELAY_BE::get);
+        EnergyConnectorBlockEntity.NAME_TO_SPEC.put(
+                AlternatingFlux.rl("connector_uaf_relay"), UAF_RELAY_SPEC);
         injectLength();
     }
 
@@ -103,11 +187,12 @@ public final class AFBlocks
             Object2FloatMap<Pair<String, Boolean>> length =
                     (Object2FloatMap<Pair<String, Boolean>>)f.get(null);
             length.put(AF_RELAY_SPEC, AF_RELAY_LENGTH);
+            length.put(UAF_RELAY_SPEC, UAF_RELAY_LENGTH);
         }
         catch(ReflectiveOperationException e)
         {
             org.slf4j.LoggerFactory.getLogger(AlternatingFlux.MODID).warn(
-                    "Could not inject AF connector LENGTH; relay wire anchor will use the 0.5 default.", e);
+                    "Could not inject AF/UAF connector LENGTH; relay wire anchor will use the 0.5 default.", e);
         }
     }
 
