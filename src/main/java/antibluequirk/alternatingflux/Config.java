@@ -32,7 +32,7 @@ public final class Config
                     .comment(
                             "Maximum length of a single AF wire, in blocks.",
                             "There is no hard cap in IE; longer wires simply cross more chunks, so keep",
-                            "both endpoints chunk-loaded. Default 64.")
+                            "both endpoints chunk-loaded. Default 96.")
                     .defineInRange("maxLength", 96, 1, 1024);
 
             lossRatio = b

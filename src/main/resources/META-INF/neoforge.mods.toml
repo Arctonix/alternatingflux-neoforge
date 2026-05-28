@@ -7,7 +7,7 @@ issueTrackerURL = "https://github.com/AntiBlueQuirk/alternatingflux/issues"
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
-authors = "AntiBlueQuirk (original), port"
+authors = "AntiBlueQuirk (original), Arctonix (1.21.1 port)"
 description = '''
 Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
 Immersive Engineering. Very low loss over distance; cannot power machines

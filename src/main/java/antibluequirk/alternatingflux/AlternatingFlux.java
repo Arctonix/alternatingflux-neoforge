@@ -18,12 +18,12 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Alternating Flux — long-distance super-high-voltage wire tier for Immersive
- * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.21.1 / NeoForge.
+ * Alternating Flux — a long-distance, low-loss super-high-voltage wire tier for
+ * Immersive Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.21.1 / NeoForge.
  *
- * Foundation: wire type, config, items. (PROVEN in-game.)
- * Chunk 1: AF relay. (PROVEN in-game.)
- * Chunk 2: AF transformer (HV<->AF step-down). (this commit.)
+ * Provides the AF wire, the AF Wire Relay, and the AF Transformer (HV&lt;-&gt;AF, 1:1).
+ * This class wires up the shared registration: items, the creative tab, the config,
+ * and the deferred IE-map injection (see {@link AFBlocks#injectIEMaps()}).
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux

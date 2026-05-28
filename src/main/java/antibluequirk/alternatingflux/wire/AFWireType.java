@@ -24,7 +24,7 @@ import java.util.Collection;
  *
  * Tuned values (all config-exposed in {@link Config}):
  *   - transfer rate : 131072 IF/t  (4x modern HV's 32768)
- *   - max length    : 64 blocks
+ *   - max length    : 96 blocks
  *   - loss ratio    : 0.0005       (well below HV's 0.0008 over a longer span)
  *   - colour        : 0xf6866c     (original AF salmon)
  *
