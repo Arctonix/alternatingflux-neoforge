@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
 license = "Custom — see README / original Alternating Flux license"
-issueTrackerURL = "https://github.com/AntiBlueQuirk/alternatingflux/issues"
+issueTrackerURL = "https://github.com/Arctonix/alternating-flux-neoforge/issues"
 
 [[mods]]
 modId = "${mod_id}"
