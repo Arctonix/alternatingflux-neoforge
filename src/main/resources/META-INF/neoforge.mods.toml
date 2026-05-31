@@ -1,12 +1,13 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
 license = "Custom — see README / original Alternating Flux license"
-issueTrackerURL = "https://github.com/Arctonix/alternating-flux-neoforge/issues"
+issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
 
 [[mods]]
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
+displayURL = "https://github.com/Arctonix/alternatingflux-neoforge"
 authors = "AntiBlueQuirk (original), Arctonix (1.21.1 port)"
 description = '''
 Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
