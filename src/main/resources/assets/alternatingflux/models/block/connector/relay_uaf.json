@@ -4,6 +4,7 @@
   "flip_v": true,
   "loader": "neoforge:obj",
   "model": "alternatingflux:models/block/connector/relay_uaf.obj",
+  "render_type": "minecraft:translucent",
   "textures": {
     "particle": "alternatingflux:block/connector_relay_uaf"
   }

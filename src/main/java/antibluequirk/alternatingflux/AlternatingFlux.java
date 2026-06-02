@@ -88,12 +88,12 @@ public class AlternatingFlux
     }
 
     /**
-     * Register the AF wire for IE feedthroughs, so an AF line can pass through a
-     * wall via a feedthrough block (parity with the 1.12 original, which also
-     * registered one). Mirrors IE's HV registration: 0.75 connector offset /
-     * HV-relay geometry. Uses our dedicated passthrough sprite mapped whole onto
-     * the connector face (UV 0..16), as the original did. Must run after block
-     * registration (reads the relay's default state); commonSetup is safe.
+     * Register the AF and UAF wires for IE feedthroughs, so a line can pass through a
+     * wall via a feedthrough block (parity with the 1.12 original, which registered
+     * one for AF). Mirrors IE's HV registration: 0.75 connector offset / HV-relay
+     * geometry, with each tier's dedicated passthrough sprite mapped whole onto the
+     * connector face (UV 0..16). Must run after block registration (reads the relay's
+     * default state); commonSetup is safe.
      */
     private static void registerFeedthrough()
     {
@@ -103,6 +103,13 @@ public class AlternatingFlux
                 new double[]{0.0, 0.0, 16.0, 16.0},
                 0.75,
                 AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
+
+        WireApi.registerFeedthroughForWiretype(
+                UAFWireType.UAF,
+                rl("block/passthrough_uaf"),
+                new double[]{0.0, 0.0, 16.0, 16.0},
+                0.75,
+                AFBlocks.CONNECTOR_UAF_RELAY.get().defaultBlockState());
     }
 
     public static ResourceLocation rl(String path)
