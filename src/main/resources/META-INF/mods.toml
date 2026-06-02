@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "[47,)"
 license = "Custom — see LICENSE / original Alternating Flux"
-issueTrackerURL = "https://github.com/Arctonix/alternating-flux-forge/issues"
+issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
 
 [[mods]]
 modId = "${mod_id}"
@@ -9,9 +9,10 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "AntiBlueQuirk (original), Arctonix (port)"
 description = '''
-Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
-Immersive Engineering. Very low loss over distance; cannot power machines
-directly — step down to HV through an AF Transformer. Ported to 1.20.1 / Forge.
+Adds Alternating Flux (AF) and Ultra High Alternating Flux (UAF), long-distance
+super-high-voltage wire tiers for Immersive Engineering. Very low loss over
+distance; cannot power machines directly — step down through an AF Transformer
+(HV<->AF) or a UAF Transformer (HV<->UAF or AF<->UAF). Ported to 1.20.1 / Forge.
 '''
 
 # Hard dependency on Immersive Engineering 10.x (1.20.1 branch).

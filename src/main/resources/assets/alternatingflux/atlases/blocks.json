@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "alternatingflux:block/passthrough_af"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "alternatingflux:block/passthrough_uaf"
+    }
+  ]
+}

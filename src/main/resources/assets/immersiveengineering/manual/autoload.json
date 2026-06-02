@@ -1,0 +1,10 @@
+{
+  "autoload_priority": 0,
+  "electrical_grids": {
+    "category_weight": 50,
+    "entry_list": [
+      { "source": "alternatingflux:alternating_flux", "weight": 0.5 },
+      { "source": "alternatingflux:ultra_high_alternating_flux", "weight": 0.6 }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "wire": {
+    "type": "crafting",
+    "recipe": "alternatingflux:wire_constantan"
+  },
+  "wirecoil": {
+    "type": "crafting",
+    "recipe": "alternatingflux:wirecoil_af"
+  },
+  "relay": {
+    "type": "crafting",
+    "recipe": "alternatingflux:connector_af_relay"
+  },
+  "transformer": {
+    "type": "crafting",
+    "recipe": "alternatingflux:connector_af_transformer"
+  }
+}

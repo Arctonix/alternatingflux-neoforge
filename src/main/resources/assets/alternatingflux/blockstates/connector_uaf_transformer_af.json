@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=south,mirrored=false": { "model": "alternatingflux:block/connector/transformer_uaf_af_left_split" },
+    "facing=south,mirrored=true":  { "model": "alternatingflux:block/connector/transformer_uaf_af_right_split" },
+    "facing=west,mirrored=false":  { "model": "alternatingflux:block/connector/transformer_uaf_af_left_split", "y": 90 },
+    "facing=west,mirrored=true":   { "model": "alternatingflux:block/connector/transformer_uaf_af_right_split", "y": 90 },
+    "facing=north,mirrored=false": { "model": "alternatingflux:block/connector/transformer_uaf_af_left_split", "y": 180 },
+    "facing=north,mirrored=true":  { "model": "alternatingflux:block/connector/transformer_uaf_af_right_split", "y": 180 },
+    "facing=east,mirrored=false":  { "model": "alternatingflux:block/connector/transformer_uaf_af_left_split", "y": 270 },
+    "facing=east,mirrored=true":   { "model": "alternatingflux:block/connector/transformer_uaf_af_right_split", "y": 270 }
+  }
+}

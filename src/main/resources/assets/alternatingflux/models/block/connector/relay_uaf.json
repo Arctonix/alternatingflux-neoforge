@@ -3,9 +3,9 @@
   "automatic_culling": false,
   "flip_v": true,
   "loader": "forge:obj",
-  "model": "alternatingflux:models/block/connector/relay_af.obj",
+  "model": "alternatingflux:models/block/connector/relay_uaf.obj",
   "render_type": "minecraft:translucent",
   "textures": {
-    "particle": "alternatingflux:block/connector_relay_af"
+    "particle": "alternatingflux:block/connector_relay_uaf"
   }
 }
