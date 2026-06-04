@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "h": { "item": "immersiveengineering:connector_hv" },
     "u": { "item": "alternatingflux:connector_uaf_relay" },

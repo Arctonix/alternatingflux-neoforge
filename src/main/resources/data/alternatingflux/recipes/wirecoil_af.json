@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "i": { "tag": "forge:wires/constantan" },
     "g": { "tag": "forge:dusts/hop_graphite" },

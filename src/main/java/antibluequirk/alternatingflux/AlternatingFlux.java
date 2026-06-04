@@ -1,11 +1,11 @@
 package antibluequirk.alternatingflux;
 
 import antibluequirk.alternatingflux.block.AFBlocks;
+import antibluequirk.alternatingflux.wire.AFWireCoilItem;
 import antibluequirk.alternatingflux.wire.AFWireType;
 import antibluequirk.alternatingflux.wire.UAFWireType;
 import blusunrize.immersiveengineering.api.wires.WireApi;
 import blusunrize.immersiveengineering.common.items.WireCoilItem;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -22,8 +22,8 @@ import net.minecraftforge.registries.RegistryObject;
 
 /**
  * Alternating Flux — long-distance super-high-voltage wire tiers for Immersive
- * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.20.1 / Forge (also loads
- * on NeoForge 1.20.1, which keeps the Forge API surface).
+ * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.19.2 / Forge (Forge-only:
+ * NeoForge does not exist for 1.19.2).
  *
  * Two tiers, each its own wire/relay/transformer network:
  *   - AF  : the base long-distance tier; HV<->AF step-down via the AF Transformer.
@@ -31,9 +31,10 @@ import net.minecraftforge.registries.RegistryObject;
  *           HV<->UAF and AF<->UAF transformers.
  *
  * Backport of the published 1.21.1 / NeoForge port at
- * https://github.com/Arctonix/alternatingflux-neoforge. Differences are purely
- * loader/platform (Forge DeferredRegister style, RegistryObject, ForgeConfigSpec,
- * IE 10.x API).
+ * https://github.com/Arctonix/alternatingflux-neoforge, via the 1.20.1-forge
+ * branch. Differences from 1.20.1 are purely platform: IE 9.x API, the
+ * pre-1.19.3 creative-tab idiom, and TextureStitchEvent sprite stitching
+ * instead of atlas JSONs.
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux
@@ -42,33 +43,36 @@ public class AlternatingFlux
 
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<CreativeModeTab> TABS =
-            DeferredRegister.create(net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final RegistryObject<WireCoilItem> AF_WIRE_COIL =
-            ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
+            ITEMS.register("wirecoil_af", () -> new AFWireCoilItem(AFWireType.AF));
 
     public static final RegistryObject<WireCoilItem> UAF_WIRE_COIL =
-            ITEMS.register("wirecoil_uaf", () -> new WireCoilItem(UAFWireType.UAF));
+            ITEMS.register("wirecoil_uaf", () -> new AFWireCoilItem(UAFWireType.UAF));
 
+    // TAB is declared below; the qualified reference sidesteps the illegal-
+    // forward-reference rule for simple names in field-initializer lambdas
+    // (same idiom as the AFBlocks.* forward references).
     public static final RegistryObject<Item> WIRE_CONSTANTAN =
-            ITEMS.register("wire_constantan", () -> new Item(new Item.Properties()));
+            ITEMS.register("wire_constantan",
+                    () -> new Item(new Item.Properties().tab(AlternatingFlux.TAB)));
 
-    public static final RegistryObject<CreativeModeTab> TAB =
-            TABS.register("main", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup." + MODID))
-                    .icon(() -> new ItemStack(AF_WIRE_COIL.get()))
-                    .displayItems((params, output) -> {
-                        output.accept(AF_WIRE_COIL.get());
-                        output.accept(WIRE_CONSTANTAN.get());
-                        output.accept(AFBlocks.CONNECTOR_AF_RELAY_ITEM.get());
-                        output.accept(AFBlocks.TRANSFORMER_AF_ITEM.get());
-                        output.accept(UAF_WIRE_COIL.get());
-                        output.accept(AFBlocks.CONNECTOR_UAF_RELAY_ITEM.get());
-                        output.accept(AFBlocks.TRANSFORMER_UAF_HV_ITEM.get());
-                        output.accept(AFBlocks.TRANSFORMER_UAF_AF_ITEM.get());
-                    })
-                    .build());
+    /**
+     * 1.19.2 creative tab: the pre-1.19.3 idiom — an anonymous CreativeModeTab
+     * (Forge's String ctor appends it to the global tab array). Title comes from
+     * the existing "itemGroup.alternatingflux" lang key. Items opt in via
+     * Item.Properties#tab; the IE item classes whose constructors pin IE's own
+     * tab (WireCoilItem, TransformerBlockItem) are rerouted here through small
+     * subclasses overriding fillItemCategory.
+     */
+    public static final CreativeModeTab TAB = new CreativeModeTab(MODID)
+    {
+        @Override
+        public ItemStack makeIcon()
+        {
+            return new ItemStack(AF_WIRE_COIL.get());
+        }
+    };
 
     public AlternatingFlux()
     {
@@ -79,7 +83,6 @@ public class AlternatingFlux
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ITEMS.register(modBus);
-        TABS.register(modBus);
         AFBlocks.register(modBus);
 
         modBus.addListener(this::commonSetup);

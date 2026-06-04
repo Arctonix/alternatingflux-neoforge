@@ -9,7 +9,6 @@ import blusunrize.immersiveengineering.common.blocks.metal.EnergyConnectorBlockE
 import blusunrize.immersiveengineering.common.blocks.metal.TransformerBlockItem;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,14 +38,16 @@ import java.lang.reflect.Field;
  * per BE (HV for one, AF for the other).
  *
  * Block item for the relays MUST be IE's BlockItemIE so placement facing applies;
- * transformer items MUST be TransformerBlockItem so the multiblock places correctly.
+ * transformer items MUST be TransformerBlockItem so the multiblock places correctly
+ * (AFTransformerBlockItem only reroutes the creative tab — see that class).
  */
 public final class AFBlocks
 {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, AlternatingFlux.MODID);
+    // ForgeRegistries key: net.minecraft.core.registries.Registries is 1.19.3+.
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, AlternatingFlux.MODID);
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AlternatingFlux.MODID);
 
     public static final String AF_VOLTAGE = "AF";
     public static final Pair<String, Boolean> AF_RELAY_SPEC = Pair.of(AF_VOLTAGE, true);
@@ -74,7 +75,8 @@ public final class AFBlocks
 
     public static final RegistryObject<BlockItemIE> CONNECTOR_AF_RELAY_ITEM =
             AlternatingFlux.ITEMS.register("connector_af_relay",
-                    () -> new BlockItemIE(AFBlocks.CONNECTOR_AF_RELAY.get(), new Item.Properties()));
+                    () -> new BlockItemIE(AFBlocks.CONNECTOR_AF_RELAY.get(),
+                            new Item.Properties().tab(AlternatingFlux.TAB)));
 
     // ---- AF Transformer --------------------------------------------------
 
@@ -91,7 +93,7 @@ public final class AFBlocks
 
     public static final RegistryObject<TransformerBlockItem> TRANSFORMER_AF_ITEM =
             AlternatingFlux.ITEMS.register("connector_af_transformer",
-                    () -> new TransformerBlockItem(TRANSFORMER_AF.get()));
+                    () -> new AFTransformerBlockItem(TRANSFORMER_AF.get()));
 
     // ---- UAF Wire Relay --------------------------------------------------
 
@@ -108,7 +110,8 @@ public final class AFBlocks
 
     public static final RegistryObject<BlockItemIE> CONNECTOR_UAF_RELAY_ITEM =
             AlternatingFlux.ITEMS.register("connector_uaf_relay",
-                    () -> new BlockItemIE(AFBlocks.CONNECTOR_UAF_RELAY.get(), new Item.Properties()));
+                    () -> new BlockItemIE(AFBlocks.CONNECTOR_UAF_RELAY.get(),
+                            new Item.Properties().tab(AlternatingFlux.TAB)));
 
     // ---- UAF Transformers (HV<->UAF and AF<->UAF) ------------------------
 
@@ -131,7 +134,7 @@ public final class AFBlocks
 
     public static final RegistryObject<TransformerBlockItem> TRANSFORMER_UAF_HV_ITEM =
             AlternatingFlux.ITEMS.register("connector_uaf_transformer_hv",
-                    () -> new TransformerBlockItem(TRANSFORMER_UAF_HV.get()));
+                    () -> new AFTransformerBlockItem(TRANSFORMER_UAF_HV.get()));
 
     // AF <-> UAF.
     public static final RegistryObject<BlockEntityType<UAFTransformerBlockEntity>> TRANSFORMER_UAF_AF_BE =
@@ -148,7 +151,7 @@ public final class AFBlocks
 
     public static final RegistryObject<TransformerBlockItem> TRANSFORMER_UAF_AF_ITEM =
             AlternatingFlux.ITEMS.register("connector_uaf_transformer_af",
-                    () -> new TransformerBlockItem(TRANSFORMER_UAF_AF.get()));
+                    () -> new AFTransformerBlockItem(TRANSFORMER_UAF_AF.get()));
 
     private static BlockEntityType<UAFTransformerBlockEntity> uafHvType()
     {
