@@ -31,10 +31,13 @@ public class UAFTransformerBlockEntity extends TransformerBlockEntity
         return AFBlocks.UAF_VOLTAGE; // "UAF"
     }
 
+    // Offsets mirror IE's HV transformer semantics (see AFTransformerBlockEntity):
+    // higher (UAF) wire at 0.75, lower wire at the base higher offset 0.5625 — note
+    // the super. call, a virtual getHigherOffset() here would wrongly return 0.75.
     @Override
     protected float getLowerOffset()
     {
-        return getHigherOffset();
+        return super.getHigherOffset();
     }
 
     @Override

@@ -8,9 +8,9 @@
     "s": { "tag": "c:rods/wooden" }
   },
   "pattern": [
-    " ig",
+    "gi ",
     "isi",
-    "gi "
+    " ig"
   ],
   "result": {
     "count": 4,

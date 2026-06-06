@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
-license = "Custom — see README / original Alternating Flux license"
+license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
 
 [[mods]]
@@ -8,6 +8,7 @@ modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 displayURL = "https://github.com/Arctonix/alternatingflux-neoforge"
+updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/master/update.json"
 authors = "AntiBlueQuirk (original), Arctonix (1.21.1 port)"
 description = '''
 Adds Alternating Flux, long-distance super-high-voltage wire tiers for Immersive
@@ -20,7 +21,7 @@ through a transformer (HV<->AF, HV<->UAF, or AF<->UAF). Ported to 1.21.1 / NeoFo
 [[dependencies.${mod_id}]]
 modId = "immersiveengineering"
 type = "required"
-versionRange = "[12.0,)"
+versionRange = "[12.1,)"
 ordering = "AFTER"
 side = "BOTH"
 
@@ -28,7 +29,7 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1,)"
+versionRange = "[21.1,21.2)"
 ordering = "NONE"
 side = "BOTH"
 
