@@ -31,10 +31,15 @@ public class UAFTransformerBlockEntity extends TransformerBlockEntity
         return AFBlocks.UAF_VOLTAGE; // "UAF"
     }
 
+    // Mirror IE's TransformerHVBlockEntity: the low side (HV or AF) sits at the base
+    // transformer's higher offset (super.getHigherOffset() == .5625F), matching the
+    // lower-tier relay geometry, while the high side (UAF) is .75F. super (not the
+    // virtual getHigherOffset()) is deliberate — our getHigherOffset is .75F, so a
+    // virtual self-call would raise the low-side wire to the UAF height by mistake.
     @Override
     protected float getLowerOffset()
     {
-        return getHigherOffset();
+        return super.getHigherOffset();
     }
 
     @Override

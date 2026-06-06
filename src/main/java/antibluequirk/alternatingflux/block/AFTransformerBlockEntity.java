@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * AF Transformer block entity — the HV <-> AF step-down.
  *
- * IE 10.x's AbstractTransformerBlockEntity is properly abstract and designed
+ * IE 9.x's AbstractTransformerBlockEntity is properly abstract and designed
  * for extension by voltage-tier subclasses (see TransformerHVBlockEntity for
  * the canonical pattern). We extend TransformerBlockEntity (the concrete
  * MV/LV transformer) the same way TransformerHVBlockEntity does, but set:
@@ -38,12 +38,15 @@ public class AFTransformerBlockEntity extends TransformerBlockEntity
     }
 
     // Offsets: match HV transformer's geometry so wires attach at the right height.
-    // We mirror TransformerHVBlockEntity exactly: getLowerOffset returns higher,
-    // and higher is .75F. This makes AF (high) and HV (low) sit like a stock HV unit.
+    // We mirror TransformerHVBlockEntity exactly: the low side sits at the base
+    // transformer's higher offset (super.getHigherOffset() == .5625F), and the high
+    // side is .75F. Calling super (not the virtual getHigherOffset()) is the whole
+    // point — our own getHigherOffset is .75F, so a virtual self-call would pull the
+    // low-side wire up to the AF height instead of the HV-relay height it must match.
     @Override
     protected float getLowerOffset()
     {
-        return getHigherOffset();
+        return super.getHigherOffset();
     }
 
     @Override

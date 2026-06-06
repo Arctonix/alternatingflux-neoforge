@@ -2,7 +2,7 @@ Alternating Flux
 Not for use on animals
 By carefully modulating Flux, it is possible to transmit it over great distances with minimal power loss. This form of Flux is called §lAlternating Flux§r. However, because all machines operate on normal Flux, Alternating Flux cannot be directly used for powering machines.<np>
 By forming Constantan into wire and coating it in Graphite, the resistance of the wire is greatly reduced while under the influence of an alternating fluxfield.<br><&wire><np>
-<&wirecoil>AF Wires have much lower power loss than other wires and can handle great current. Excellent for long-distance power transfer. Loss is further reduced as connectors near maximum capacity.<np>
+<&wirecoil>AF Wires have much lower power loss than other wires and can handle great current. Excellent for long-distance power transfer. Loss is further reduced as connectors near maximum capacity. Like HV lines, an energised AF wire will shock any creature that touches it, more fiercely the more power it is carrying.<np>
 <&relay>AF Relays are made like HV Relays. Because Alternating Flux cannot power machines, no AF Connector exists - only the relay.<np>
 <&transformer>To modulate Flux into Alternating Flux and back, an §lAF Transformer§r is required. It converts between Flux and Alternating Flux at a 1:1 rate.<np>
 Note: like all IE wires, an AF line only transfers power while both endpoints are in loaded chunks. Long AF runs cross more chunks, so keep them chunk-loaded.<np>

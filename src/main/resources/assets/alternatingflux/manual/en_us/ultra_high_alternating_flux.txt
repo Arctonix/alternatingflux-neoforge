@@ -2,7 +2,7 @@ Ultra High Alternating Flux
 When AF just isn't enough
 Pushing flux modulation further yields §lUltra High Alternating Flux§r (UAF), a transmission tier above standard AF. It carries far greater current over the same long distances, at the cost of more demanding infrastructure. Like AF, UAF cannot directly power machines and must be stepped back down.<np>
 UAF Wire is built atop the AF design, refining a finished AF coil with additional Constantan and Graphite to handle the higher load.<br><&wirecoil><np>
-UAF Wires carry four times the current of AF lines while keeping the same low loss and maximum length. Best reserved for trunk lines moving very large amounts of power across the map.<np>
+UAF Wires carry four times the current of AF lines over the same maximum length, while losing even less power along the way - their loss is lower still than AF's. Best reserved for trunk lines moving very large amounts of power across the map. As with AF, a live UAF line shocks anything that touches it, all the more so under heavy load.<np>
 <&relay>The §lUAF Relay§r is a taller relay post built like the AF Relay. As with AF, no machine connector exists - UAF is transmission-only.<np>
 <&transformers>Two transformers bridge UAF to lower tiers: the brass §lHV–UAF Transformer§r steps between HV and UAF, and the salmon §lAF–UAF Transformer§r steps between AF and UAF. Both convert at a 1:1 rate.<np>
 UAF wire stats:<br>§oMax. Length:§r <config;i;uaf_max_length> blocks<br>§oTransfer Rate:§r <config;i;uaf_transfer_rate> IF/t<br>§oLoss (full length):§r <config;d;uaf_loss_percent>%

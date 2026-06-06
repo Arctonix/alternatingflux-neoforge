@@ -1,7 +1,9 @@
 modLoader = "javafml"
 loaderVersion = "[43,)"
-license = "Custom — see LICENSE / original Alternating Flux"
+license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
+displayURL = "https://github.com/Arctonix/alternatingflux-neoforge"
+updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/master/update.json"
 
 [[mods]]
 modId = "${mod_id}"
@@ -15,7 +17,8 @@ distance; cannot power machines directly — step down through an AF Transformer
 (HV<->AF) or a UAF Transformer (HV<->UAF or AF<->UAF). Ported to 1.19.2 / Forge.
 '''
 
-# Hard dependency on Immersive Engineering 9.x (1.19.2 branch).
+# Hard dependency on Immersive Engineering, floored at the pinned 9.2 line
+# (the jar this targets reports version 1.19.2-9.2.4-170).
 [[dependencies.${mod_id}]]
 modId = "immersiveengineering"
 mandatory = true
@@ -23,18 +26,18 @@ versionRange = "[1.19.2-9.2,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# Forge.
+# Forge — the 1.19.2 line.
 [[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[43,44)"
 ordering = "NONE"
 side = "BOTH"
 
-# Minecraft.
+# Minecraft 1.19.2.
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,1.19.3)"
+versionRange = "[1.19.2,1.20)"
 ordering = "NONE"
 side = "BOTH"
