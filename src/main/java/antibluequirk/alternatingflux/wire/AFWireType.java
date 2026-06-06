@@ -28,6 +28,8 @@ import java.util.Collection;
  *
  * Tuned values (all config-exposed in {@link Config}):
  *   - transfer rate : 131072 IF/t  (4x modern HV's 32768)
+ *       (trunk/aggregate capacity; each AF&lt;-&gt;HV transformer still caps at the
+ *        HV rate 32768, so 4x is trunk aggregation, not single-link delivery)
  *   - max length    : 96 blocks
  *   - loss ratio    : 0.0005       (well below HV's 0.0008 over a longer span)
  *   - colour        : 0xf6866c     (original AF salmon)
@@ -49,6 +51,9 @@ public class AFWireType extends WireType implements IShockingWire
      * progression (LV 0.5 / MV 1.0 / HV 1.5).
      */
     private static final ElectricSource ELECTRIC_SOURCE = new ElectricSource(2.0f);
+
+    /** Sentinel for "no shock", mirroring IE's ShockingWire when damage is disabled. */
+    private static final ElectricSource NO_SOURCE = new ElectricSource(-1.0f);
 
     public static void init()
     {
@@ -138,6 +143,9 @@ public class AFWireType extends WireType implements IShockingWire
     @Override
     public ElectricSource getElectricSource()
     {
+        // Like IE's ShockingWire: a -1 source means "no shock" when damage is off.
+        if(Config.SERVER.damageRadius.get() <= 0 || Config.SERVER.shockDamageBase.get() <= 0)
+            return NO_SOURCE;
         return ELECTRIC_SOURCE;
     }
 

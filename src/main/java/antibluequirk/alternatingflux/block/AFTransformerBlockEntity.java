@@ -35,13 +35,15 @@ public class AFTransformerBlockEntity extends TransformerBlockEntity
     }
 
     // Offsets: match HV transformer's geometry so wires attach at the right height.
-    // TransformerBlockEntity's base getHigherOffset()/getLowerOffset() default to the
-    // MV positions; HV transformer overrides higher to .75 and swaps lower to that.
-    // We mirror the HV transformer so AF (high) and HV (low) sit like a stock HV unit.
+    // TransformerBlockEntity's base getLowerOffset()=0.5 / getHigherOffset()=0.5625 are
+    // the MV positions. IE's HV transformer anchors its higher (HV) wire at 0.75 and its
+    // lower (MV) wire at the base higher offset 0.5625 (via super.getHigherOffset()).
+    // We mirror that exactly: AF (high) at 0.75, HV (low) at 0.5625 — note the super.
+    // call, a virtual getHigherOffset() here would wrongly return our 0.75.
     @Override
     protected float getLowerOffset()
     {
-        return getHigherOffset();
+        return super.getHigherOffset();
     }
 
     @Override

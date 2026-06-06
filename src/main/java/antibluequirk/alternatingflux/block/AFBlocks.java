@@ -84,7 +84,16 @@ public final class AFBlocks
 
     // ---- IE map injection (relay) ----------------------------------------
 
-    /** Inject AF relay into IE's connector maps. Call once, during common setup. */
+    /**
+     * Inject AF relay into IE's connector maps. Call once, during common setup.
+     *
+     * Ordering matters: this must run during FMLCommonSetupEvent — after the
+     * registry events (so our block/BE-type holders are populated), but before
+     * RegisterCapabilitiesEvent (IE's EnergyConnectorBlockEntity.registerCapabilities
+     * iterates SPEC_TO_TYPE, so our spec must already be in it) and before any AF
+     * relay BE is constructed (the EnergyConnectorBlockEntity ctor resolves its own
+     * type from SPEC_TO_TYPE and would NPE on a missing entry).
+     */
     public static void injectIEMaps()
     {
         EnergyConnectorBlockEntity.SPEC_TO_TYPE.put(AF_RELAY_SPEC, CONNECTOR_AF_RELAY_BE::get);

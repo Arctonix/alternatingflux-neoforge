@@ -1,0 +1,12 @@
+{
+  "homepage": "https://github.com/Arctonix/alternatingflux-neoforge/releases",
+  "promos": {
+    "1.21.1-recommended": "1.0.5",
+    "1.21.1-latest": "1.0.5",
+    "1.20.1-latest": "1.1.0-alpha.3",
+    "1.19.2-latest": "1.1.0-alpha.3"
+  },
+  "1.21.1": { "1.0.5": "Fix transformer HV-side wire height, feedthrough hitbox/attach point; repin IE; metadata cleanup." },
+  "1.20.1": { "1.1.0-alpha.3": "AF/UAF wires shock on contact; feedthrough fixes; zh_cn restored; doc/metadata cleanup." },
+  "1.19.2": { "1.1.0-alpha.3": "AF/UAF wires shock on contact; feedthrough fixes; zh_cn restored; doc/metadata cleanup." }
+}

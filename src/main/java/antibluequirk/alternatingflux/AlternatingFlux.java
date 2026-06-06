@@ -77,18 +77,24 @@ public class AlternatingFlux
     /**
      * Register the AF wire for IE feedthroughs, so an AF line can pass through a
      * wall via a feedthrough block (parity with the 1.12 original, which also
-     * registered one). Mirrors IE's HV registration: 0.75 connector offset /
-     * HV-relay geometry. Uses our dedicated passthrough sprite mapped whole onto
-     * the connector face (UV 0..16), as the original did. Must run after block
+     * registered one). The rendered cup is the relay's own model (relay_af.obj,
+     * Y-extent [0, 0.86875]); IE's HV registration uses 0.75 because its HV
+     * connector model is 0.75 tall, so we pass our relay tip height 0.875 instead
+     * (= AFBlocks.AF_RELAY_LENGTH) for BOTH connLength (collision/selection box
+     * depth) and connOffset (wire attach point), so the box is deep enough and the
+     * wire reaches the cup tip. Uses our dedicated passthrough sprite mapped whole
+     * onto the connector face (UV 0..16), as the original did. Must run after block
      * registration (reads the relay's default state); commonSetup is safe.
      */
     private static void registerFeedthrough()
     {
+        // 6-arg overload: (WireType, texture, uvs, connLength, connOffset, connector).
         WireApi.registerFeedthroughForWiretype(
                 AFWireType.AF,
                 rl("block/passthrough_af"),
                 new double[]{0.0, 0.0, 16.0, 16.0},
-                0.75,
+                0.875,
+                0.875,
                 AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
     }
 

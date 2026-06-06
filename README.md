@@ -41,7 +41,7 @@ Get it from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/alternatin
 
 ## Installation
 
-Drop the `alternatingflux-1.21.1-1.0.0.jar` into your `mods/` folder alongside Immersive Engineering and NeoForge. Needed on both client and server.
+Drop the `alternatingflux-<version>.jar` into your `mods/` folder alongside Immersive Engineering and NeoForge. Needed on both client and server.
 
 ## Configuration
 

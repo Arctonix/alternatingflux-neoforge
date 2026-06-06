@@ -3,8 +3,12 @@ name: Build
 on:
   push:
     branches: [ master, uaf-tier ]
+    tags: [ 'v*' ]
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -32,3 +36,10 @@ jobs:
           name: alternatingflux-jar
           path: build/libs/*.jar
           if-no-files-found: error
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/libs/*.jar
+          generate_release_notes: true

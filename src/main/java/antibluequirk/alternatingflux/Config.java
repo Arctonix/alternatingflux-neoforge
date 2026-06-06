@@ -27,8 +27,12 @@ public final class Config
             b.push("alternating_flux");
 
             transferRate = b
-                    .comment("AF wire transfer rate in IF/t. Default 131072 = 4x modern HV (32768).")
-                    .defineInRange("transferRate", 131072, 0, Integer.MAX_VALUE);
+                    .comment(
+                            "AF line carrying capacity (trunk/aggregate) in IF/t. Default 131072.",
+                            "Each AF<->HV transformer moves at most the HV rate (32768), so the 4x",
+                            "refers to one AF trunk aggregating multiple HV feeds, not single-link",
+                            "delivery. Minimum 1 (0 would divide-by-zero the shock-damage formula).")
+                    .defineInRange("transferRate", 131072, 1, Integer.MAX_VALUE);
 
             maxLength = b
                     .comment(
