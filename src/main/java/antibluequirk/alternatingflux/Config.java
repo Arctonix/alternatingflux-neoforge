@@ -19,6 +19,8 @@ public final class Config
         public final IntValue maxLength;
         public final DoubleValue lossRatio;
         public final IntValue wireColour;
+        public final DoubleValue damageRadius;
+        public final DoubleValue shockDamageBase;
 
         Server(ModConfigSpec.Builder b)
         {
@@ -45,6 +47,20 @@ public final class Config
             wireColour = b
                     .comment("RGB colour of the AF wire. Default 0xf6866c (original salmon).")
                     .defineInRange("wireColour", 0xf6866c, 0, 0xffffff);
+
+            damageRadius = b
+                    .comment(
+                            "How close an entity must get to a live AF wire to be shocked, in blocks",
+                            "(entity hitbox is inflated by this much for the check). IE's own tiers:",
+                            "LV 0.05 / MV 0.1 / HV 0.3. Default 0.5 — AF sits above HV.")
+                    .defineInRange("damageRadius", 0.5, 0.0, 4.0);
+
+            shockDamageBase = b
+                    .comment(
+                            "Base shock damage of a fully-loaded AF wire; actual damage scales with",
+                            "current throughput (IE's formula). IE's tiers: LV 2 / MV 5 / HV 15.",
+                            "Default 25. Set 0 to disable shock damage entirely.")
+                    .defineInRange("shockDamageBase", 25.0, 0.0, 1024.0);
 
             b.pop();
         }

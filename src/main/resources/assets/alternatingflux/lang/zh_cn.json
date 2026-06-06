@@ -1,0 +1,9 @@
+{
+  "itemGroup.alternatingflux": "交变磁通",
+
+  "item.alternatingflux.wirecoil_af": "超高压线圈",
+  "item.alternatingflux.wire_constantan": "康铜线",
+
+  "block.alternatingflux.connector_af_relay": "超高压继电器",
+  "block.alternatingflux.connector_af_transformer": "超高压变压器"
+}
