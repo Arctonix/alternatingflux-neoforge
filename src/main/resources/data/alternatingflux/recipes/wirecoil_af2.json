@@ -8,9 +8,9 @@
     "s": { "tag": "forge:rods/wooden" }
   },
   "pattern": [
-    " ig",
+    "gi ",
     "isi",
-    "gi "
+    " ig"
   ],
   "result": {
     "item": "alternatingflux:wirecoil_af",

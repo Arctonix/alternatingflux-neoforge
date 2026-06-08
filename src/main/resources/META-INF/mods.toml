@@ -2,7 +2,7 @@ modLoader = "javafml"
 loaderVersion = "[47,48)"
 license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
-updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/master/update.json"
+updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/1.20.1-forge-stable/update.json"
 
 [[mods]]
 modId = "${mod_id}"
@@ -11,10 +11,10 @@ displayName = "${mod_name}"
 displayURL = "https://github.com/Arctonix/alternatingflux-neoforge"
 authors = "AntiBlueQuirk (original), Arctonix (port)"
 description = '''
-Adds Alternating Flux (AF) and Ultra High Alternating Flux (UAF), long-distance
-super-high-voltage wire tiers for Immersive Engineering. Very low loss over
-distance; cannot power machines directly — step down through an AF Transformer
-(HV<->AF) or a UAF Transformer (HV<->UAF or AF<->UAF). Ported to 1.20.1 / Forge.
+Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
+Immersive Engineering. Very low loss over distance; cannot power machines
+directly — step down to HV through an AF Transformer (HV<->AF, 1:1). Ported to
+1.20.1 / Forge at feature parity with the 1.21.1 / NeoForge v1.0.5 release.
 '''
 
 # Hard dependency on Immersive Engineering 10.2.x (1.20.1 branch), floored at the

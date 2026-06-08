@@ -1,6 +1,0 @@
-newmtl transformer
-map_Kd alternatingflux:block/connector_transformer_uaf_hv
-newmtl transformer_lower
-map_Kd alternatingflux:block/connector_transformer_af
-newmtl transformer_uaf_post
-map_Kd alternatingflux:block/connector_transformer_af_purple
