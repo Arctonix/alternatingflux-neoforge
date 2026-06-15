@@ -1,0 +1,8 @@
+{
+  "textures": {
+    "particle": "alternatingflux:block/connector_relay_af"
+  },
+  "loader": "immersiveengineering:connector",
+  "base_model": "alternatingflux:block/connector/relay_af",
+  "layers": ["solid"]
+}

@@ -1,0 +1,8 @@
+{
+  "textures": {
+    "particle": "alternatingflux:block/connector_transformer_af"
+  },
+  "loader": "immersiveengineering:connector",
+  "base_model": "alternatingflux:block/connector/transformer_af_left_mirrored_split",
+  "layers": ["solid"]
+}

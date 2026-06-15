@@ -1,16 +1,16 @@
 {
   "variants": {
-    "facing=down,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af" },
-    "facing=down,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af" },
-    "facing=up,waterlogged=false":    { "model": "alternatingflux:block/connector/relay_af", "x": 180 },
-    "facing=up,waterlogged=true":     { "model": "alternatingflux:block/connector/relay_af", "x": 180 },
-    "facing=north,waterlogged=false": { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 180 },
-    "facing=north,waterlogged=true":  { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 180 },
-    "facing=south,waterlogged=false": { "model": "alternatingflux:block/connector/relay_af", "x": 90 },
-    "facing=south,waterlogged=true":  { "model": "alternatingflux:block/connector/relay_af", "x": 90 },
-    "facing=west,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 90 },
-    "facing=west,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 90 },
-    "facing=east,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 270 },
-    "facing=east,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af", "x": 90, "y": 270 }
+    "facing=down,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af_connector", "uvlock": true },
+    "facing=down,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af_connector", "uvlock": true },
+    "facing=up,waterlogged=false":    { "model": "alternatingflux:block/connector/relay_af_connector", "x": 180, "uvlock": true },
+    "facing=up,waterlogged=true":     { "model": "alternatingflux:block/connector/relay_af_connector", "x": 180, "uvlock": true },
+    "facing=north,waterlogged=false": { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 180, "uvlock": true },
+    "facing=north,waterlogged=true":  { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 180, "uvlock": true },
+    "facing=south,waterlogged=false": { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "uvlock": true },
+    "facing=south,waterlogged=true":  { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "uvlock": true },
+    "facing=west,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 90, "uvlock": true },
+    "facing=west,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 90, "uvlock": true },
+    "facing=east,waterlogged=false":  { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 270, "uvlock": true },
+    "facing=east,waterlogged=true":   { "model": "alternatingflux:block/connector/relay_af_connector", "x": 90, "y": 270, "uvlock": true }
   }
 }
