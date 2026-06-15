@@ -9,10 +9,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
- * Client-only manual hook. Registers a config getter with IE so the AF/UAF manual
- * entries can show live spec values through IE's {@code <config;TYPE;KEY>} tokens
- * (the same statistics-page idea the 1.12 original used). The getter returns null
- * for any key we don't own, so IE's own config tokens keep resolving.
+ * Client-only manual hook. Registers a config getter with IE so the AF manual
+ * entries can show live spec values through IE's {@code <config;TYPE;KEY>} tokens.
+ * The getter returns null for any key we don't own, so IE's own config tokens
+ * keep resolving.
  *
  * Forge equivalent of the 1.21.1 NeoForge AFManual: a MOD-bus EventBusSubscriber
  * scoped to the client dist.
@@ -31,12 +31,9 @@ public final class AFManual
     {
         return switch(key)
         {
-            case "af_transfer_rate"  -> Config.SERVER.transferRate.get();
-            case "af_max_length"     -> Config.SERVER.maxLength.get();
-            case "af_loss_percent"   -> Config.SERVER.lossRatio.get() * 100.0;
-            case "uaf_transfer_rate" -> Config.SERVER.uafTransferRate.get();
-            case "uaf_max_length"    -> Config.SERVER.uafMaxLength.get();
-            case "uaf_loss_percent"  -> Config.SERVER.uafLossRatio.get() * 100.0;
+            case "af_transfer_rate" -> Config.SERVER.transferRate.get();
+            case "af_max_length"    -> Config.SERVER.maxLength.get();
+            case "af_loss_percent"  -> Config.SERVER.lossRatio.get() * 100.0;
             default -> null;
         };
     }

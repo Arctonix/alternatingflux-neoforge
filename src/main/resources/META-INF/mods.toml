@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[40,)"
 license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
 displayURL = "https://github.com/Arctonix/alternatingflux-neoforge"
@@ -11,33 +11,31 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "AntiBlueQuirk (original), Arctonix (port)"
 description = '''
-Adds Alternating Flux (AF) and Ultra High Alternating Flux (UAF), long-distance
-super-high-voltage wire tiers for Immersive Engineering. Very low loss over
-distance; cannot power machines directly — step down through an AF Transformer
-(HV<->AF) or a UAF Transformer (HV<->UAF or AF<->UAF). Ported to 1.19.2 / Forge.
+Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
+Immersive Engineering. Very low loss over distance; cannot power machines directly
+— step down through an AF Transformer (HV<->AF). Ported to 1.18.2 / Forge.
 '''
 
-# Hard dependency on Immersive Engineering, floored at the pinned 9.2 line
-# (the jar this targets reports version 1.19.2-9.2.4-170).
+# Hard dependency on Immersive Engineering, floored at the pinned 8.4 line.
 [[dependencies.${mod_id}]]
 modId = "immersiveengineering"
 mandatory = true
-versionRange = "[1.19.2-9.2,)"
+versionRange = "[1.18.2-8.4,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# Forge — the 1.19.2 line.
+# Forge — the 1.18.2 line.
 [[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,44)"
+versionRange = "[40,41)"
 ordering = "NONE"
 side = "BOTH"
 
-# Minecraft 1.19.2.
+# Minecraft 1.18.2.
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,1.20)"
+versionRange = "[1.18.2,1.19)"
 ordering = "NONE"
 side = "BOTH"

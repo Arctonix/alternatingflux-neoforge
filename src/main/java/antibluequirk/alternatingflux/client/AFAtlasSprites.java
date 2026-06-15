@@ -8,11 +8,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Stitches the feedthrough sprites into the block atlas. 1.19.2 predates atlas
- * JSONs (assets/&lt;ns&gt;/atlases/ is 1.19.3+), so sprites no model references
- * directly — ours are consumed only by IE's feedthrough model via WireApi.INFOS —
- * must be added through TextureStitchEvent.Pre instead (the event the 1.20.1
- * branch's atlases/blocks.json replaced; it was removed in Forge 1.20).
+ * Stitches the feedthrough sprite into the block atlas. 1.18.2 predates atlas
+ * JSONs (assets/&lt;ns&gt;/atlases/ is 1.19.3+), so sprites not directly
+ * referenced by a model — ours is consumed only by IE's feedthrough model via
+ * WireApi.INFOS — must be added through TextureStitchEvent.Pre instead.
  */
 @Mod.EventBusSubscriber(modid = AlternatingFlux.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class AFAtlasSprites
@@ -23,7 +22,6 @@ public final class AFAtlasSprites
         if(event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS))
         {
             event.addSprite(AlternatingFlux.rl("block/passthrough_af"));
-            event.addSprite(AlternatingFlux.rl("block/passthrough_uaf"));
         }
     }
 

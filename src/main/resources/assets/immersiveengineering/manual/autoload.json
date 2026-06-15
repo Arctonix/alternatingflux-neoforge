@@ -2,8 +2,7 @@
   "autoload_priority": 0,
   "energy": {
     "entry_list": [
-      { "source": "alternatingflux:alternating_flux", "weight": 0.5 },
-      { "source": "alternatingflux:ultra_high_alternating_flux", "weight": 0.6 }
+      { "source": "alternatingflux:alternating_flux", "weight": 0.5 }
     ]
   }
 }
