@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "group": "wirecoil_af",
   "key": {
     "i": { "tag": "forge:wires/constantan" },

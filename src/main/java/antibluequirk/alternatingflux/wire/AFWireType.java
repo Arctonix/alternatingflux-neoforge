@@ -9,9 +9,11 @@ import blusunrize.immersiveengineering.api.wires.WireType;
 import blusunrize.immersiveengineering.api.wires.localhandlers.WireDamageHandler;
 import blusunrize.immersiveengineering.api.wires.localhandlers.WireDamageHandler.IShockingWire;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -19,23 +21,13 @@ import java.util.Collection;
 /**
  * The Alternating Flux wire tier.
  *
- * Port of AntiBlueQuirk's 1.12 AFWireType onto IE 10.x's wire API (1.20.1 Forge).
- * Identical in shape to the 1.21.1 version we already shipped — the IEnergyWire
- * and IShockingWire interfaces are unchanged between IE 10.x and 12.x. Loss
- * formula matches IE's own EnergyWire: lossRatio * length / maxLength.
+ * Port of AntiBlueQuirk's 1.12 AFWireType onto IE 5.x's wire API (1.16.5 Forge).
+ * In IE 1.16.5, WireType declares getIcon(Connection) as abstract. The energy
+ * methods (getTransferRate, getBasicLossRate, getLossRate) come via IShockingWire
+ * which extends EnergyTransferHandler.IEnergyWire.
  *
- * Tuned values (all config-exposed in {@link Config}):
- *   - transfer rate : 131072 IF/t  (4x modern HV's 32768)
- *   - max length    : 96 blocks
- *   - loss ratio    : 0.0005       (well below HV's 0.0008 over a longer span)
- *   - colour        : 0xf6866c     (original AF salmon)
- *
- * Note: the 1.12 original declared canCauseDamage()=true but a long-standing bug
- * (issue #12) meant AF wires never actually shocked anything. This port fixes
- * that rather than reproducing it: AF is an {@link IShockingWire}, so live AF
- * lines hurt. Damage continues IE's tier progression (LV/MV/HV base damage
- * 2/5/15 at radius 0.05/0.1/0.3 — AF defaults to 25 at 0.5, config-exposed)
- * and uses IE's own throughput-scaled formula, so an idle line is harmless.
+ * In 1.16.5, Connection has no getLength() — compute wire length from endpoint
+ * positions using the same formula IE uses internally (Euclidean distance).
  */
 public class AFWireType extends WireType implements IShockingWire
 {
@@ -97,6 +89,17 @@ public class AFWireType extends WireType implements IShockingWire
         return 0.078125;
     }
 
+    /**
+     * IE 1.16.5 WireType requires getIcon(Connection) for client-side wire rendering.
+     * Return the static default wire icon (set by IE after texture loading).
+     * This is client-only; on dedicated server this method is never called.
+     */
+    @Override
+    public TextureAtlasSprite getIcon(Connection connection)
+    {
+        return WireType.iconDefaultWire;
+    }
+
     @Nonnull
     @Override
     public String getCategory()
@@ -104,7 +107,7 @@ public class AFWireType extends WireType implements IShockingWire
         return AF_CATEGORY;
     }
 
-    // --- IEnergyWire -------------------------------------------------------
+    // --- IEnergyWire (via IShockingWire) ------------------------------------------
 
     @Override
     public int getTransferRate()
@@ -115,8 +118,11 @@ public class AFWireType extends WireType implements IShockingWire
     @Override
     public double getBasicLossRate(Connection c)
     {
-        // Identical to IE's EnergyWire formula.
-        return Config.SERVER.lossRatio.get() * c.getLength() / getMaxLength();
+        // IE 1.16.5's Connection has no getLength(). Compute Euclidean distance from
+        // endpoints — identical to IE's own EnergyWire.getBasicLossRate formula.
+        Vector3d posA = Vector3d.atLowerCornerOf(c.getEndA().getPosition());
+        double dist = Math.sqrt(c.getEndB().getPosition().distSqr(posA, false));
+        return Config.SERVER.lossRatio.get() * dist / getMaxLength();
     }
 
     @Override
@@ -146,10 +152,7 @@ public class AFWireType extends WireType implements IShockingWire
     @Override
     public float getDamageAmount(Entity e, Connection c, int transferred)
     {
-        // IE's own formula (IEWireTypes$ShockingWire): base * load fraction * 8.
-        // 'transferred' is the loss-adjusted energy available from all sources,
-        // capped by the handler at transferRate — so like IE's HV (15 -> 120),
-        // a line at full available capacity deals base * 8.
+        // IE's own formula: base * load fraction * 8.
         return (float)(Config.SERVER.shockDamageBase.get() * transferred / getTransferRate() * 8);
     }
 
@@ -158,10 +161,8 @@ public class AFWireType extends WireType implements IShockingWire
     @Override
     public Collection<ResourceLocation> getRequestedHandlers()
     {
-        // The EnergyTransferHandler is requested by the connector block entities,
-        // not by the wire type itself (see EnergyConnectorBlockEntity). The
-        // WireDamageHandler, however, attaches per wire type: requesting it here
-        // is what makes entities brushing a live AF line take shock damage.
+        // The WireDamageHandler attaches per wire type, making entities brushing
+        // a live AF line take shock damage.
         return ImmutableList.of(WireDamageHandler.ID);
     }
 }

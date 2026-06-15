@@ -1,11 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "c": [
-      { "item": "immersiveengineering:insulating_glass" },
-      { "item": "immersiveengineering:slag_glass" }
-    ],
+    "c": { "item": "immersiveengineering:slag_glass" },
     "i": { "tag": "forge:ingots/constantan" }
   },
   "pattern": [

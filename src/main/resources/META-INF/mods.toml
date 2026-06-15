@@ -1,8 +1,8 @@
 modLoader = "javafml"
-loaderVersion = "[47,48)"
+loaderVersion = "[36,)"
 license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
-updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/1.20.1-forge-stable/update.json"
+updateJSONURL = "https://raw.githubusercontent.com/Arctonix/alternatingflux-neoforge/1.16.5-forge-stable/update.json"
 
 [[mods]]
 modId = "${mod_id}"
@@ -14,23 +14,24 @@ description = '''
 Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
 Immersive Engineering. Very low loss over distance; cannot power machines
 directly — step down to HV through an AF Transformer (HV<->AF, 1:1). Ported to
-1.20.1 / Forge at feature parity with the 1.21.1 / NeoForge v1.0.5 release.
+1.16.5 / Forge at feature parity with the 1.21.1 / NeoForge v1.0.5 release.
 '''
 
-# Hard dependency on Immersive Engineering 10.2.x (1.20.1 branch), floored at the
-# pinned line and bounded below the next major (built against 1.20.1-10.2.0-183).
+# Hard dependency on Immersive Engineering 5.1.x (1.16.5 branch), floored at 5.1
+# which introduced the public EnergyConnectorTileEntity two-arg constructor and
+# the NAME_TO_SPEC/SPEC_TO_TYPE maps (built against 5.1.0-148).
 [[dependencies.${mod_id}]]
 modId = "immersiveengineering"
 mandatory = true
-versionRange = "[1.20.1-10.2,1.20.1-11)"
+versionRange = "[1.16.5-5.1,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# Forge (1.20.1 line).
+# Forge (1.16.5 / 36.x line).
 [[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[47,48)"
+versionRange = "[36,37)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -38,6 +39,6 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,1.21)"
+versionRange = "[1.16.5,1.17)"
 ordering = "NONE"
 side = "BOTH"

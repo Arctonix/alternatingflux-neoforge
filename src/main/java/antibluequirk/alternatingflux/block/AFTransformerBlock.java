@@ -2,11 +2,11 @@ package antibluequirk.alternatingflux.block;
 
 import blusunrize.immersiveengineering.api.IEProperties;
 import blusunrize.immersiveengineering.common.blocks.generic.ConnectorBlock;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
 
 /**
  * AF Transformer block. Mirrors IE's TransformerHVBlock: a 3-tall multiblock
@@ -14,18 +14,18 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * ConnectorBlock handles the multiblock placement/break logic; we only declare
  * the same blockstate properties and the same placement footprint.
  *
- * IE 10.x (1.20.1) ConnectorBlock constructor takes (Properties, RegistryObject)
- * rather than a Supplier — the only difference from the 1.21.1 version.
+ * In IE 1.16.5, ConnectorBlock(String name, RegistryObject&lt;TileEntityType&gt;) takes
+ * a String name as first arg (used for block registration). No Properties arg.
  */
 public class AFTransformerBlock extends ConnectorBlock<AFTransformerBlockEntity>
 {
-    public AFTransformerBlock(Properties props)
+    public AFTransformerBlock(String name)
     {
-        super(props, AFBlocks.TRANSFORMER_AF_BE);
+        super(name, AFBlocks.TRANSFORMER_AF_BE);
     }
 
     @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(IEProperties.FACING_HORIZONTAL, IEProperties.MULTIBLOCKSLAVE,
@@ -33,7 +33,7 @@ public class AFTransformerBlock extends ConnectorBlock<AFTransformerBlockEntity>
     }
 
     @Override
-    public boolean canIEBlockBePlaced(BlockState newState, BlockPlaceContext context)
+    public boolean canIEBlockBePlaced(BlockState newState, BlockItemUseContext context)
     {
         // 3-tall: needs the clicked block plus the two above it free.
         return areAllReplaceable(context.getClickedPos(), context.getClickedPos().above(2), context);

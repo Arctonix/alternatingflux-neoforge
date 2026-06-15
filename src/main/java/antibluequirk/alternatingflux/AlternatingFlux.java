@@ -1,37 +1,30 @@
 package antibluequirk.alternatingflux;
 
 import antibluequirk.alternatingflux.block.AFBlocks;
+import antibluequirk.alternatingflux.wire.AFWireCoilItem;
 import antibluequirk.alternatingflux.wire.AFWireType;
 import blusunrize.immersiveengineering.api.wires.WireApi;
-import blusunrize.immersiveengineering.common.items.WireCoilItem;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 /**
  * Alternating Flux — a long-distance, low-loss super-high-voltage wire tier for
- * Immersive Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.20.1 / Forge
- * (also loads on NeoForge 1.20.1, which keeps the Forge API surface).
+ * Immersive Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.16.5 / Forge.
  *
- * Provides the AF wire, the AF Wire Relay, and the AF Transformer (HV<->AF, 1:1).
+ * Provides the AF wire, the AF Wire Relay, and the AF Transformer (HV&lt;-&gt;AF, 1:1).
  * This class wires up the shared registration: items, the creative tab, the config,
  * and the deferred IE-map injection (see {@link AFBlocks#injectIEMaps()}).
- *
- * Backport of the published 1.21.1 / NeoForge port at
- * https://github.com/Arctonix/alternatingflux-neoforge at feature parity with its
- * v1.0.5. Differences are purely loader/platform (Forge DeferredRegister style,
- * RegistryObject, ForgeConfigSpec, IE 10.x API).
  */
 @Mod(AlternatingFlux.MODID)
 public class AlternatingFlux
@@ -40,26 +33,37 @@ public class AlternatingFlux
 
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<CreativeModeTab> TABS =
-            DeferredRegister.create(net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final RegistryObject<WireCoilItem> AF_WIRE_COIL =
-            ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
+    /**
+     * Creative tab for AF items. In 1.16.5, the DeferredRegister&lt;CreativeModeTab&gt;
+     * pattern (introduced in 1.19.3) does not exist. Use ItemGroup anonymous subclass.
+     * The tab label key is "itemGroup.alternatingflux" matching the lang file entry.
+     * Declared before AF_WIRE_COIL/WIRE_CONSTANTAN so their lambdas can reference TAB
+     * without a forward reference.
+     */
+    public static final ItemGroup TAB = new ItemGroup(MODID)
+    {
+        @Override
+        public ItemStack makeIcon()
+        {
+            // AF_WIRE_COIL.get() is only called at render time (not at static init),
+            // so the forward reference here is safe.
+            return new ItemStack(AF_WIRE_COIL.get());
+        }
+    };
+
+    /**
+     * AF Wire Coil. Uses AFWireCoilItem (extends Item + IWireCoil directly) instead
+     * of IE's WireCoilItem, because IE 1.16.5's IEBaseItem sets the registry name to
+     * immersiveengineering:&lt;name&gt; in the constructor, which would conflict with our
+     * registration under the alternatingflux namespace.
+     */
+    public static final RegistryObject<AFWireCoilItem> AF_WIRE_COIL =
+            ITEMS.register("wirecoil_af", () -> new AFWireCoilItem(AFWireType.AF,
+                    new Item.Properties().tab(TAB)));
 
     public static final RegistryObject<Item> WIRE_CONSTANTAN =
-            ITEMS.register("wire_constantan", () -> new Item(new Item.Properties()));
-
-    public static final RegistryObject<CreativeModeTab> TAB =
-            TABS.register("main", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup." + MODID))
-                    .icon(() -> new ItemStack(AF_WIRE_COIL.get()))
-                    .displayItems((params, output) -> {
-                        output.accept(AF_WIRE_COIL.get());
-                        output.accept(WIRE_CONSTANTAN.get());
-                        output.accept(AFBlocks.CONNECTOR_AF_RELAY_ITEM.get());
-                        output.accept(AFBlocks.TRANSFORMER_AF_ITEM.get());
-                    })
-                    .build());
+            ITEMS.register("wire_constantan", () -> new Item(new Item.Properties().tab(TAB)));
 
     public AlternatingFlux()
     {
@@ -69,7 +73,6 @@ public class AlternatingFlux
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ITEMS.register(modBus);
-        TABS.register(modBus);
         AFBlocks.register(modBus);
 
         modBus.addListener(this::commonSetup);
@@ -86,25 +89,20 @@ public class AlternatingFlux
     }
 
     /**
-     * Register the AF wire for IE feedthroughs, so an AF line can pass through a
-     * wall via a feedthrough block (parity with the 1.12 original, which also
-     * registered one). The dedicated passthrough sprite is mapped whole onto the
-     * connector face (UV 0..16). The connLength/connOffset pair must match the relay
-     * model so the wire stub meets the cup at the right height: relay_af.obj tips out
-     * at 0.86875 (so 0.875 = AFBlocks.AF_RELAY_LENGTH). IE's single-double overload
-     * would force connLength == connOffset to 0.75, the HV value and too short for
-     * this cup, so we use the two-double overload (length, offset). Must run after
-     * block registration (reads the relay's default state); commonSetup is safe.
+     * Register the AF wire for IE feedthroughs. In IE 1.16.5 the signature is:
+     * (WireType, ResourceLocation, float[], double, double, Supplier&lt;BlockState&gt;)
+     * — note float[] (not double[]) and Supplier&lt;BlockState&gt; (not plain BlockState).
+     * The relay model tips out at 0.875, so connLength and connOffset are both 0.875.
      */
     private static void registerFeedthrough()
     {
         WireApi.registerFeedthroughForWiretype(
                 AFWireType.AF,
                 rl("block/passthrough_af"),
-                new double[]{0.0, 0.0, 16.0, 16.0},
+                new float[]{0.0f, 0.0f, 16.0f, 16.0f},
                 0.875,
                 0.875,
-                AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
+                () -> AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
     }
 
     public static ResourceLocation rl(String path)
