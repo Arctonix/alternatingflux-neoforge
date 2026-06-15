@@ -3,7 +3,7 @@
   "dynamic": false,
   "inner_model": {
     "parent": "minecraft:block/block",
-    "automatic_culling": false,
+    "detectCullableFaces": false,
     "flip-v": true,
     "loader": "forge:obj",
     "model": "alternatingflux:models/block/connector/transformer_af_left.obj",
