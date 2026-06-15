@@ -33,13 +33,13 @@ import java.lang.reflect.Field;
  * Block item for the relay MUST be IE's BlockItemIE so placement facing applies;
  * transformer item MUST be TransformerBlockItem so the multiblock places correctly.
  *
- * Field ordering: CONNECTOR_AF_RELAY_BE references CONNECTOR_AF_RELAY.get() in its
- * lazy supplier (called at registration time, not static-init time), but Java javac
- * still flags it as a forward reference in a static initializer. To avoid this, we
- * declare CONNECTOR_AF_RELAY first (its lambda only captures CONNECTOR_AF_RELAY_BE,
- * a RegistryObject), and declare CONNECTOR_AF_RELAY_BE second (its lambda calls no
- * getter from CONNECTOR_AF_RELAY — we omit the block set from TileEntityType.Builder
- * since IE's connector system does not rely on Minecraft's block-TE association map).
+ * Field ordering: CONNECTOR_AF_RELAY_BE is declared before CONNECTOR_AF_RELAY, yet
+ * its lazy supplier references AFBlocks.CONNECTOR_AF_RELAY.get(). A qualified static
+ * reference inside a lambda is not an illegal forward reference, and the lambda only
+ * runs at registration time (after CONNECTOR_AF_RELAY is registered), so the block is
+ * bound into the TileEntityType. This MUST be set: the relay's BE is a server-tickable
+ * EnergyConnector, and a no-block TileEntityType would be dropped on placement/chunk
+ * load (no power, no persistence). Matches the 1.18.2/1.19.2/1.20.1 siblings.
  */
 public final class AFBlocks
 {
@@ -55,17 +55,16 @@ public final class AFBlocks
 
     // ---- AF Wire Relay ---------------------------------------------------
     // Declaration order: CONNECTOR_AF_RELAY_BE first, then CONNECTOR_AF_RELAY.
-    // The TileEntityType Builder does not reference CONNECTOR_AF_RELAY (block args
-    // omitted — IE's connector system does not rely on Minecraft's block-TE map).
-    // CONNECTOR_AF_RELAY's constructor takes CONNECTOR_AF_RELAY_BE (already declared),
-    // so there is no forward reference.
+    // The BE's lazy supplier binds the block via AFBlocks.CONNECTOR_AF_RELAY.get()
+    // (qualified static ref inside a lambda that runs at registration time — legal,
+    // not an illegal forward reference). The block MUST be bound or the TileEntityType
+    // is dropped on placement and the relay never ticks / joins the wire network.
 
     public static final RegistryObject<TileEntityType<EnergyConnectorTileEntity>> CONNECTOR_AF_RELAY_BE =
             TILE_ENTITIES.register("connector_af_relay", () ->
                     TileEntityType.Builder.<EnergyConnectorTileEntity>of(
-                            () -> new EnergyConnectorTileEntity(AF_VOLTAGE, true)
-                            // No block args: IE's connector system doesn't use the MC
-                            // block-TE association map for connector functionality.
+                            () -> new EnergyConnectorTileEntity(AF_VOLTAGE, true),
+                            AFBlocks.CONNECTOR_AF_RELAY.get()
                     ).build(null));
 
     public static final RegistryObject<BasicConnectorBlock<EnergyConnectorTileEntity>> CONNECTOR_AF_RELAY =
@@ -86,7 +85,8 @@ public final class AFBlocks
     public static final RegistryObject<TileEntityType<AFTransformerBlockEntity>> TRANSFORMER_AF_BE =
             TILE_ENTITIES.register("connector_af_transformer", () ->
                     TileEntityType.Builder.<AFTransformerBlockEntity>of(
-                            AFTransformerBlockEntity::new
+                            AFTransformerBlockEntity::new,
+                            AFBlocks.TRANSFORMER_AF.get()
                     ).build(null));
 
     public static final RegistryObject<TransformerBlockItem> TRANSFORMER_AF_ITEM =
