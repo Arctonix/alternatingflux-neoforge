@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "i": { "tag": "forge:wires/constantan" },
+    "g": { "tag": "forge:dusts/hop_graphite" },
+    "s": { "tag": "forge:rods/wooden" }
+  },
+  "pattern": [
+    "gi ",
+    "isi",
+    " ig"
+  ],
+  "result": {
+    "item": "alternatingflux:wirecoil_af",
+    "count": 4
+  }
+}

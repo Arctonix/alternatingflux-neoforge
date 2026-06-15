@@ -4,12 +4,6 @@
   "item.alternatingflux.wirecoil_af": "AF Wire Coil",
   "item.alternatingflux.wire_constantan": "Constantan Wire",
 
-  "item.alternatingflux.wirecoil_uaf": "UAF Wire Coil",
-
   "block.alternatingflux.connector_af_relay": "AF Wire Relay",
-  "block.alternatingflux.connector_af_transformer": "AF Transformer",
-
-  "block.alternatingflux.connector_uaf_relay": "UAF Wire Relay",
-  "block.alternatingflux.connector_uaf_transformer_hv": "HV–UAF Transformer",
-  "block.alternatingflux.connector_uaf_transformer_af": "AF–UAF Transformer"
+  "block.alternatingflux.connector_af_transformer": "AF Transformer"
 }

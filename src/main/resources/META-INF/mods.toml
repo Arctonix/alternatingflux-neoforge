@@ -11,10 +11,10 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "AntiBlueQuirk (original), Arctonix (port)"
 description = '''
-Adds Alternating Flux (AF) and Ultra High Alternating Flux (UAF), long-distance
-super-high-voltage wire tiers for Immersive Engineering. Very low loss over
-distance; cannot power machines directly — step down through an AF Transformer
-(HV<->AF) or a UAF Transformer (HV<->UAF or AF<->UAF). Ported to 1.19.2 / Forge.
+Adds Alternating Flux (AF), a long-distance super-high-voltage wire tier for
+Immersive Engineering. Very low loss over distance; cannot power machines directly
+— step down through an AF Transformer (HV<->AF). Ported to 1.19.2 / Forge.
+Stable v1.0.5: AF tier only (AF-only parity with the 1.21.1 NeoForge release).
 '''
 
 # Hard dependency on Immersive Engineering, floored at the pinned 9.2 line

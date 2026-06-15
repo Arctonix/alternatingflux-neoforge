@@ -3,7 +3,6 @@ package antibluequirk.alternatingflux;
 import antibluequirk.alternatingflux.block.AFBlocks;
 import antibluequirk.alternatingflux.wire.AFWireCoilItem;
 import antibluequirk.alternatingflux.wire.AFWireType;
-import antibluequirk.alternatingflux.wire.UAFWireType;
 import blusunrize.immersiveengineering.api.wires.WireApi;
 import blusunrize.immersiveengineering.common.items.WireCoilItem;
 import net.minecraft.resources.ResourceLocation;
@@ -21,17 +20,15 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 /**
- * Alternating Flux — long-distance super-high-voltage wire tiers for Immersive
- * Engineering. Port of AntiBlueQuirk's 1.12 addon to 1.19.2 / Forge (Forge-only:
- * NeoForge does not exist for 1.19.2).
+ * Alternating Flux — long-distance super-high-voltage AF wire tier for Immersive
+ * Engineering. Stable v1.0.5: AF tier only (no UAF). Port of AntiBlueQuirk's 1.12
+ * addon to 1.19.2 / Forge.
  *
- * Two tiers, each its own wire/relay/transformer network:
- *   - AF  : the base long-distance tier; HV<->AF step-down via the AF Transformer.
- *   - UAF : the higher "Ultra High AF" tier, bridged to lower tiers by the
- *           HV<->UAF and AF<->UAF transformers.
+ * One tier:
+ *   - AF : the base long-distance tier; HV&lt;-&gt;AF step-down via the AF Transformer.
  *
  * Backport of the published 1.21.1 / NeoForge port at
- * https://github.com/Arctonix/alternatingflux-neoforge, via the 1.20.1-forge
+ * https://github.com/Arctonix/alternatingflux-neoforge, via the 1.20.1-forge-stable
  * branch. Differences from 1.20.1 are purely platform: IE 9.x API, the
  * pre-1.19.3 creative-tab idiom, and TextureStitchEvent sprite stitching
  * instead of atlas JSONs.
@@ -46,9 +43,6 @@ public class AlternatingFlux
 
     public static final RegistryObject<WireCoilItem> AF_WIRE_COIL =
             ITEMS.register("wirecoil_af", () -> new AFWireCoilItem(AFWireType.AF));
-
-    public static final RegistryObject<WireCoilItem> UAF_WIRE_COIL =
-            ITEMS.register("wirecoil_uaf", () -> new AFWireCoilItem(UAFWireType.UAF));
 
     // TAB is declared below; the qualified reference sidesteps the illegal-
     // forward-reference rule for simple names in field-initializer lambdas
@@ -76,9 +70,8 @@ public class AlternatingFlux
 
     public AlternatingFlux()
     {
-        // The wire types register themselves with WireApi via their constructors.
+        // The wire type registers itself with WireApi via its constructor.
         AFWireType.init();
-        UAFWireType.init();
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -99,19 +92,16 @@ public class AlternatingFlux
     }
 
     /**
-     * Register the AF and UAF wires for IE feedthroughs, so a line can pass through
-     * a wall via a feedthrough block (parity with the 1.12 original, which registered
-     * one for AF). Each tier's dedicated passthrough sprite is mapped whole onto the
-     * connector face (UV 0..16). Must run after block registration (reads the relay's
-     * default state); commonSetup is safe.
+     * Register the AF wire for IE feedthroughs, so a line can pass through
+     * a wall via a feedthrough block (parity with the 1.12 original). The
+     * passthrough sprite is mapped whole onto the connector face (UV 0..16).
+     * Must run after block registration (reads the relay's default state);
+     * commonSetup is safe.
      *
-     * The (connLength, connOffset) pair must match each relay's actual model tip so
-     * the through-wire meets the connector cup instead of floating below it: the AF
-     * relay cup tops out at 0.86875 (-> 0.875), the UAF relay 0.5 taller at 1.36875
-     * (-> 1.375). We use IE 9.x's six-arg overload that takes connLength and
-     * connOffset separately (verified by javap: registerFeedthroughForWiretype(
-     * WireType, ResourceLocation, double[], double, double, BlockState)); the older
-     * five-arg overload feeds a single value into both, which left the wire short.
+     * The connLength/connOffset must match the AF relay model tip so the
+     * through-wire meets the connector cup: the AF relay cup tops out at
+     * 0.86875 (-> 0.875). We use IE 9.x's six-arg overload that takes
+     * connLength and connOffset separately (verified by javap).
      */
     private static void registerFeedthrough()
     {
@@ -122,14 +112,6 @@ public class AlternatingFlux
                 0.875,
                 0.875,
                 AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
-
-        WireApi.registerFeedthroughForWiretype(
-                UAFWireType.UAF,
-                rl("block/passthrough_uaf"),
-                new double[]{0.0, 0.0, 16.0, 16.0},
-                1.375,
-                1.375,
-                AFBlocks.CONNECTOR_UAF_RELAY.get().defaultBlockState());
     }
 
     public static ResourceLocation rl(String path)

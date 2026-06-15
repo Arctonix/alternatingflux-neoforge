@@ -23,7 +23,6 @@ public final class AFAtlasSprites
         if(event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS))
         {
             event.addSprite(AlternatingFlux.rl("block/passthrough_af"));
-            event.addSprite(AlternatingFlux.rl("block/passthrough_uaf"));
         }
     }
 
