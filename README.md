@@ -1,16 +1,15 @@
 # Alternating Flux
 
-A long-distance, low-loss power transmission tier for [Immersive Engineering](https://www.curseforge.com/minecraft/mc-mods/immersive-engineering) on **Minecraft 1.20.1 / Forge**.
+A long-distance, low-loss power transmission tier for [Immersive Engineering](https://www.curseforge.com/minecraft/mc-mods/immersive-engineering) on **Minecraft 1.16.5 / Forge**.
 
 > **Alternating Flux** was originally created by **AntiBlueQuirk** for Minecraft 1.12.2.
-> This is an updated port to 1.20.1 / Forge by **Arctonix**, with the original
+> This is an updated port to 1.16.5 / Forge by **Arctonix**, with the original
 > author's blessing. All credit for the original mod, concept, and assets goes to
 > AntiBlueQuirk — see [the original mod](https://github.com/AntiBlueQuirk/alternatingflux).
 
-> **Note:** This is the **stable** 1.20.1 / Forge line, at feature parity with the
+> **Note:** This is the **stable** 1.16.5 / Forge line, at feature parity with the
 > published [1.21.1 / NeoForge](https://github.com/Arctonix/alternatingflux-neoforge)
-> **v1.0.5** release (AF tier only). The separate `1.20.1-forge` branch carries an
-> alpha that additionally adds the UAF tier.
+> **v1.0.5** release (AF tier only).
 
 ---
 
@@ -37,9 +36,9 @@ Think of it as the EHV transmission backbone of your power grid: bulk power acro
 
 ## Requirements
 
-- Minecraft **1.20.1**
-- **Forge** 47.x (built against 47.3.0)
-- **Immersive Engineering** 10.2.x (required dependency — install it alongside this mod)
+- Minecraft **1.16.5**
+- **Forge** 36.x (built against 36.2.34)
+- **Immersive Engineering** 5.1.x (required dependency — install it alongside this mod)
 
 ## Installation
 
@@ -59,7 +58,7 @@ Server config (`alternatingflux-server.toml`), section `alternating_flux`:
 ## Credits
 
 - **AntiBlueQuirk** — original creator of Alternating Flux. The concept, design, textures, and models are theirs.
-- **Arctonix** — 1.20.1 / Forge port.
+- **Arctonix** — 1.16.5 / Forge port.
 - **BluSunrize and the Immersive Engineering team** — for IE and its API, which this addon builds on.
 
 ## License

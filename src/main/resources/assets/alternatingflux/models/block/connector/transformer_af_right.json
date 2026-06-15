@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "forge:obj",
+  "model": "alternatingflux:models/block/connector/transformer_af_right.obj",
+  "flip-v": true,
+  "detectCullableFaces": false,
+  "textures": {
+    "particle": "alternatingflux:block/connector_transformer_af"
+  }
+}
