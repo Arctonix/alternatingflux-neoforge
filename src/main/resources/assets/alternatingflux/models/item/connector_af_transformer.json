@@ -37,7 +37,7 @@
       "translation": [0.0, 1.5, -2.75]
     }
   },
-  "flip_v": true,
+  "flip-v": true,
   "loader": "forge:obj",
   "model": "alternatingflux:models/block/connector/transformer_af_left.obj"
 }

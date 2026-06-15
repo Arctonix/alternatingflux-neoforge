@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ 1.19.2-forge ]
+    branches: [ 1.18.2-forge, 1.18.2-forge-stable ]
     tags: [ 'v*' ]
   pull_request:
   workflow_dispatch:
