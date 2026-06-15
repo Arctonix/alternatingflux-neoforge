@@ -1,13 +1,8 @@
 package antibluequirk.alternatingflux.block;
 
 import antibluequirk.alternatingflux.AlternatingFlux;
-import blusunrize.immersiveengineering.common.blocks.BlockItemIE;
-import blusunrize.immersiveengineering.common.blocks.metal.BasicConnectorBlock;
 import blusunrize.immersiveengineering.common.blocks.metal.EnergyConnectorTileEntity;
-import blusunrize.immersiveengineering.common.blocks.metal.TransformerBlockItem;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
@@ -20,31 +15,41 @@ import java.lang.reflect.Field;
 /**
  * Registration for AF connector blocks: the AF Wire Relay and the AF Transformer.
  *
- * Relay: reuses IE EnergyConnectorTileEntity with voltage="AF". IE 1.16.5 (5.x)
- * exposes a public two-arg constructor EnergyConnectorTileEntity(String voltage,
- * boolean relay) — no BlockPos/BlockState (those come from the type chain).
- * The SPEC_TO_TYPE and NAME_TO_SPEC public-static maps are injected during common
- * setup. The private LENGTH map (wire anchor height) is poked via reflection.
+ * IE 1.16.5 (5.x) registration model — IE's block base classes (IEBaseBlock -&gt;
+ * ConnectorBlock) SELF-REGISTER in their constructor: they call setRegistryName() and
+ * add themselves to IEContent.registeredIEBlocks, and auto-create a BlockItem that they
+ * add to IEContent.registeredIEItems. IE then registers everything in those lists during
+ * its OWN RegistryEvents (the pre-DeferredRegister pattern). So we must NOT also register
+ * these blocks/items through our own DeferredRegister — that double-sets the registry
+ * name and crashes load_registries ("Attempted to set registry name with existing
+ * registry name! New: alternatingflux:connector_af_relay Old: immersiveengineering:..."),
+ * which is exactly what a naive port of the 1.18.2+ DeferredRegister approach does here.
+ *
+ * Therefore:
+ *   - The blocks are plain static fields, constructed at class-init (which happens from
+ *     {@link #register} during mod construction, before IE's registry events fire). Each
+ *     block (see {@link AFRelayBlock}, {@link AFTransformerBlock}) overrides
+ *     createRegistryName() to the alternatingflux: namespace — IEBaseBlock hardcodes
+ *     immersiveengineering: — and supplies a custom item factory so the auto-created
+ *     BlockItem is the right type and lands in AF's creative tab.
+ *   - We keep our own DeferredRegister ONLY for the TileEntityTypes (built via Builder,
+ *     not self-registering, so no conflict). Each TE type binds its block so the
+ *     server-tickable EnergyConnector BE is not dropped at placement/chunk-load.
+ *
+ * Field ordering matters: each TileEntityType RegistryObject is declared BEFORE its block
+ * (the block constructor reads the TE-type field), while the TE-type Builder references
+ * the block through a lambda that only runs at registry-event time (after class-init has
+ * eagerly constructed the block) — a qualified forward reference inside a lambda is legal.
+ *
+ * Relay: reuses IE EnergyConnectorTileEntity with voltage="AF" (public two-arg ctor
+ * EnergyConnectorTileEntity(String voltage, boolean relay)). SPEC_TO_TYPE/NAME_TO_SPEC are
+ * injected during common setup; the private LENGTH map (wire anchor height) via reflection.
  *
  * Transformer: AFTransformerBlock extends IE ConnectorBlock; AFTransformerBlockEntity
- * extends IE TransformerTileEntity with getHigherWiretype()="AF" and
- * acceptableLowerWires={HV}.
- *
- * Block item for the relay MUST be IE's BlockItemIE so placement facing applies;
- * transformer item MUST be TransformerBlockItem so the multiblock places correctly.
- *
- * Field ordering: CONNECTOR_AF_RELAY_BE is declared before CONNECTOR_AF_RELAY, yet
- * its lazy supplier references AFBlocks.CONNECTOR_AF_RELAY.get(). A qualified static
- * reference inside a lambda is not an illegal forward reference, and the lambda only
- * runs at registration time (after CONNECTOR_AF_RELAY is registered), so the block is
- * bound into the TileEntityType. This MUST be set: the relay's BE is a server-tickable
- * EnergyConnector, and a no-block TileEntityType would be dropped on placement/chunk
- * load (no power, no persistence). Matches the 1.18.2/1.19.2/1.20.1 siblings.
+ * extends IE TransformerTileEntity (getHigherWiretype()="AF", acceptableLowerWires={HV}).
  */
 public final class AFBlocks
 {
-    public static final DeferredRegister<Block> BLOCKS =
-            DeferredRegister.create(ForgeRegistries.BLOCKS, AlternatingFlux.MODID);
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES =
             DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, AlternatingFlux.MODID);
 
@@ -54,45 +59,30 @@ public final class AFBlocks
     private static final float AF_RELAY_LENGTH = 0.875F; // match HV relay anchor/height
 
     // ---- AF Wire Relay ---------------------------------------------------
-    // Declaration order: CONNECTOR_AF_RELAY_BE first, then CONNECTOR_AF_RELAY.
-    // The BE's lazy supplier binds the block via AFBlocks.CONNECTOR_AF_RELAY.get()
-    // (qualified static ref inside a lambda that runs at registration time — legal,
-    // not an illegal forward reference). The block MUST be bound or the TileEntityType
-    // is dropped on placement and the relay never ticks / joins the wire network.
 
     public static final RegistryObject<TileEntityType<EnergyConnectorTileEntity>> CONNECTOR_AF_RELAY_BE =
             TILE_ENTITIES.register("connector_af_relay", () ->
                     TileEntityType.Builder.<EnergyConnectorTileEntity>of(
                             () -> new EnergyConnectorTileEntity(AF_VOLTAGE, true),
-                            AFBlocks.CONNECTOR_AF_RELAY.get()
+                            AFBlocks.CONNECTOR_AF_RELAY
                     ).build(null));
 
-    public static final RegistryObject<BasicConnectorBlock<EnergyConnectorTileEntity>> CONNECTOR_AF_RELAY =
-            BLOCKS.register("connector_af_relay", () ->
-                    new BasicConnectorBlock<>("connector_af_relay", CONNECTOR_AF_RELAY_BE));
-
-    public static final RegistryObject<BlockItemIE> CONNECTOR_AF_RELAY_ITEM =
-            AlternatingFlux.ITEMS.register("connector_af_relay",
-                    () -> new BlockItemIE(AFBlocks.CONNECTOR_AF_RELAY.get(),
-                            new Item.Properties().tab(AlternatingFlux.TAB)));
+    /** Constructed eagerly; IE registers it (and its auto BlockItem) during its RegistryEvents. */
+    public static final AFRelayBlock CONNECTOR_AF_RELAY =
+            new AFRelayBlock("connector_af_relay", CONNECTOR_AF_RELAY_BE);
 
     // ---- AF Transformer --------------------------------------------------
-
-    public static final RegistryObject<AFTransformerBlock> TRANSFORMER_AF =
-            BLOCKS.register("connector_af_transformer", () ->
-                    new AFTransformerBlock("connector_af_transformer"));
 
     public static final RegistryObject<TileEntityType<AFTransformerBlockEntity>> TRANSFORMER_AF_BE =
             TILE_ENTITIES.register("connector_af_transformer", () ->
                     TileEntityType.Builder.<AFTransformerBlockEntity>of(
                             AFTransformerBlockEntity::new,
-                            AFBlocks.TRANSFORMER_AF.get()
+                            AFBlocks.TRANSFORMER_AF
                     ).build(null));
 
-    public static final RegistryObject<TransformerBlockItem> TRANSFORMER_AF_ITEM =
-            AlternatingFlux.ITEMS.register("connector_af_transformer",
-                    () -> new TransformerBlockItem(TRANSFORMER_AF.get(),
-                            new Item.Properties().tab(AlternatingFlux.TAB)));
+    /** Constructed eagerly; IE registers it (and its auto TransformerBlockItem). */
+    public static final AFTransformerBlock TRANSFORMER_AF =
+            new AFTransformerBlock("connector_af_transformer");
 
     // ---- IE map injection (relay) ----------------------------------------
 
@@ -125,7 +115,9 @@ public final class AFBlocks
 
     public static void register(IEventBus modBus)
     {
-        BLOCKS.register(modBus);
+        // Touching this class has already constructed the blocks above (class-init), which
+        // self-added them to IEContent's lists; IE registers them during its RegistryEvents.
+        // We only register our own TileEntityTypes.
         TILE_ENTITIES.register(modBus);
     }
 

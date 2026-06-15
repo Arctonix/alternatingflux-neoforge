@@ -102,7 +102,7 @@ public class AlternatingFlux
                 new float[]{0.0f, 0.0f, 16.0f, 16.0f},
                 0.875,
                 0.875,
-                () -> AFBlocks.CONNECTOR_AF_RELAY.get().defaultBlockState());
+                () -> AFBlocks.CONNECTOR_AF_RELAY.defaultBlockState());
     }
 
     public static ResourceLocation rl(String path)

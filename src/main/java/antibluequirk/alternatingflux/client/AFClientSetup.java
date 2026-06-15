@@ -27,7 +27,7 @@ public final class AFClientSetup
     static void onClientSetup(FMLClientSetupEvent event)
     {
         event.enqueueWork(() ->
-                RenderTypeLookup.setRenderLayer(AFBlocks.CONNECTOR_AF_RELAY.get(), RenderType.translucent()));
+                RenderTypeLookup.setRenderLayer(AFBlocks.CONNECTOR_AF_RELAY, RenderType.translucent()));
     }
 
     private AFClientSetup() {}

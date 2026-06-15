@@ -1,12 +1,16 @@
 package antibluequirk.alternatingflux.block;
 
+import antibluequirk.alternatingflux.AlternatingFlux;
 import blusunrize.immersiveengineering.api.IEProperties;
 import blusunrize.immersiveengineering.common.blocks.generic.ConnectorBlock;
+import blusunrize.immersiveengineering.common.blocks.metal.TransformerBlockItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * AF Transformer block. Mirrors IE's TransformerHVBlock: a 3-tall multiblock
@@ -14,14 +18,25 @@ import net.minecraft.state.properties.BlockStateProperties;
  * ConnectorBlock handles the multiblock placement/break logic; we only declare
  * the same blockstate properties and the same placement footprint.
  *
- * In IE 1.16.5, ConnectorBlock(String name, RegistryObject&lt;TileEntityType&gt;) takes
- * a String name as first arg (used for block registration). No Properties arg.
+ * Registration follows IE 1.16.5's self-registering model (see {@link AFBlocks}): the
+ * super-constructor sets the registry name and self-adds to IEContent's lists, so we pass
+ * a custom item factory to get a {@link TransformerBlockItem} (required for the multiblock
+ * to place) in AF's creative tab, and override createRegistryName() to the alternatingflux:
+ * namespace (IEBaseBlock hardcodes immersiveengineering:; it reads the public {@code name}
+ * field, already set when the super-constructor calls createRegistryName()).
  */
 public class AFTransformerBlock extends ConnectorBlock<AFTransformerBlockEntity>
 {
     public AFTransformerBlock(String name)
     {
-        super(name, AFBlocks.TRANSFORMER_AF_BE);
+        super(name, AFBlocks.TRANSFORMER_AF_BE,
+                (block, props) -> new TransformerBlockItem(block, new Item.Properties().tab(AlternatingFlux.TAB)));
+    }
+
+    @Override
+    public ResourceLocation createRegistryName()
+    {
+        return AlternatingFlux.rl(this.name);
     }
 
     @Override
