@@ -4,19 +4,17 @@
     "1.21.1-recommended": "1.0.5",
     "1.21.1-latest": "1.0.5",
     "1.20.1-recommended": "1.0.5",
-    "1.20.1-latest": "1.1.0-alpha.3",
-    "1.19.2-latest": "1.1.0-alpha.3",
+    "1.20.1-latest": "1.0.5",
+    "1.19.2-recommended": "1.0.5",
+    "1.19.2-latest": "1.0.5",
+    "1.18.2-recommended": "1.0.5",
+    "1.18.2-latest": "1.0.5",
     "1.16.5-recommended": "1.0.5",
     "1.16.5-latest": "1.0.5"
   },
-  "1.16.5": {
-    "1.0.5": "1.16.5 Forge stable: AF tier at feature parity with the 1.21.1 / NeoForge v1.0.5 release (shock-on-contact, AF feedthrough, transformer wire-height fix, translucent relay cups, mirrored coil recipe)."
-  },
-  "1.20.1": {
-    "1.0.5": "1.20.1 Forge stable: AF tier at feature parity with the 1.21.1 / NeoForge v1.0.5 release (shock-on-contact, AF feedthrough, transformer wire-height fix, translucent relay cups, mirrored coil recipe).",
-    "1.1.0-alpha.3": "AF/UAF wires shock on contact; feedthrough fixes; zh_cn restored; doc/metadata cleanup."
-  },
-  "1.21.1": {
-    "1.0.5": "Fix transformer HV-side wire height, feedthrough hitbox/attach point; repin IE; metadata cleanup."
-  }
+  "1.21.1": { "1.0.5": "Fix transformer HV-side wire height, feedthrough hitbox/attach point; repin IE; metadata cleanup." },
+  "1.20.1": { "1.0.5": "Alternating Flux for 1.20.1 (Forge and NeoForge): shock on contact, feedthrough support, transformer wire-height fix, translucent relay cups." },
+  "1.19.2": { "1.0.5": "Alternating Flux for 1.19.2: shock on contact, feedthrough support, transformer wire-height fix, translucent relay cups." },
+  "1.18.2": { "1.0.5": "Alternating Flux for 1.18.2: shock on contact, feedthrough support, transformer wire-height fix, translucent relay cups." },
+  "1.16.5": { "1.0.5": "Alternating Flux for 1.16.5: shock on contact, feedthrough support, transformer wire-height fix, IE 5.x connector models." }
 }
