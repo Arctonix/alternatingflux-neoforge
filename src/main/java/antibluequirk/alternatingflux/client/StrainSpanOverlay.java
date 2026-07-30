@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +26,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+
+import javax.annotation.Nullable;
 
 /**
  * A SECOND overlay layer, drawn beside Immersive Engineering's own held-link
@@ -55,6 +58,19 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
  * Both facts this needs are client-side already, and are the same two IE's own
  * layer uses: the stored {@code WIRE_LINK} component gives the far end, and
  * {@code Minecraft#hitResult} gives what the player is aiming at.
+ *
+ * <h2>The far end a client cannot see</h2>
+ * The server force-loads the far end's chunk to judge it. A client cannot: past
+ * the player's render distance {@code getBlockState} answers air there, and air
+ * is not an anchor. At these distances that is not an edge case — a doubled AF
+ * span is 192 blocks and a render distance of 8 chunks is 128 — so a naive
+ * readout would go red over the last stretch of every long span, which is the
+ * exact bug this layer exists to fix, reintroduced one layer up.
+ *
+ * So the far end is REMEMBERED. The player was standing at it when they made the
+ * first click, which is the only way a link is ever stored, so the client has
+ * certainly seen that block; it is refreshed on every frame the chunk is still in
+ * view and kept when it goes out. See {@link #farEndAnchored}.
  */
 @EventBusSubscriber(modid = AlternatingFlux.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public final class StrainSpanOverlay
@@ -73,6 +89,21 @@ public final class StrainSpanOverlay
 	 */
 	private static final int LINE_ABOVE_IE = 30;
 
+	/**
+	 * The last far end this client actually looked at, and what it was.
+	 *
+	 * One link is held at a time and one player is looking at it, so one slot is
+	 * the whole of the state. It is only ever consulted for the position it was
+	 * recorded at, in the dimension it was recorded in, so a stale entry cannot be
+	 * mistaken for a fresh one — it can only fail to apply, and then the readout
+	 * falls back to reading the world and under-promises rather than inventing.
+	 */
+	@Nullable
+	private static ResourceKey<Level> rememberedDimension;
+	@Nullable
+	private static BlockPos rememberedFarEnd;
+	private static boolean rememberedAnchored;
+
 	@SubscribeEvent
 	static void register(RegisterGuiLayersEvent ev)
 	{
@@ -88,6 +119,11 @@ public final class StrainSpanOverlay
 		Player player = mc.player;
 		Level level = mc.level;
 		if(player==null||level==null||mc.options.hideGui)
+			return;
+		// No strain hardware in this game, so there is no second number to state and
+		// IE's own line is already telling the truth. A bare AF install sees exactly
+		// the HUD it saw in 1.0.5.
+		if(!StrainSpans.anchorsExist())
 			return;
 
 		for(InteractionHand hand : InteractionHand.values())
@@ -119,8 +155,13 @@ public final class StrainSpanOverlay
 				?blockAim.getBlockPos().distSqr(far)
 				:player.distanceToSqr(far.getX(), far.getY(), far.getZ());
 
-		boolean strain = blockAim!=null&&StrainSpans.bothEndsAnchored(
-				level, held, wire, blockAim.getBlockPos(),
+		// Not StrainSpans.bothEndsAnchored: that reads the far end out of the world,
+		// which is right on a server and blind on a client. The two ends are answered
+		// separately here so the far one can come from memory.
+		boolean strain = blockAim!=null
+				&&link.dimension().equals(level.dimension())
+				&&farEndAnchored(level, far)
+				&&StrainSpans.isAnchorEnd(level, blockAim.getBlockPos(), wire,
 				StrainSpans.targeting(blockAim.getDirection(), blockAim.getBlockPos(), blockAim.getLocation()));
 
 		int max = strain?coil.getStrainSpanLength(held): wire.getMaxLength();
@@ -140,6 +181,36 @@ public final class StrainSpanOverlay
 				mc.getWindow().getGuiScaledWidth()/2,
 				mc.getWindow().getGuiScaledHeight()-LINE_ABOVE_IE-mc.gui.leftHeight,
 				colour);
+	}
+
+	/**
+	 * Was the far end of the held link an anchor, as best this client can know?
+	 *
+	 * While its chunk is in view the world is the answer and the memory is
+	 * refreshed from it. Once it drops out of view the world would answer air —
+	 * {@code ClientChunkCache} hands back an empty chunk for anything it has not
+	 * been sent — and the remembered answer is used instead, because the block did
+	 * not change when the player walked away from it.
+	 *
+	 * The memory is certain to have been filled: a link only exists because the
+	 * player clicked that block, from arm's length, some seconds ago. The one case
+	 * it has not is a reconnect while already holding a link, where the coil
+	 * survives on the stack and this class's memory does not. There the readout
+	 * falls back to what the client can see, which is the pre-existing behaviour and
+	 * errs towards the shorter reach — a green line that should have been red would
+	 * be the harmful direction, and this cannot produce one.
+	 */
+	private static boolean farEndAnchored(Level level, BlockPos far)
+	{
+		if(level.isLoaded(far))
+		{
+			boolean anchored = StrainSpans.isAnchor(level, far);
+			rememberedDimension = level.dimension();
+			rememberedFarEnd = far;
+			rememberedAnchored = anchored;
+			return anchored;
+		}
+		return far.equals(rememberedFarEnd)&&level.dimension().equals(rememberedDimension)&&rememberedAnchored;
 	}
 
 	private StrainSpanOverlay() {}

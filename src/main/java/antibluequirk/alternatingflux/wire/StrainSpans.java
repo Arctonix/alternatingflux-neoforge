@@ -8,6 +8,7 @@ import blusunrize.immersiveengineering.api.wires.WireType;
 import blusunrize.immersiveengineering.api.wires.utils.WireLink;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
@@ -32,8 +33,15 @@ import javax.annotation.Nullable;
  * With the tag empty — a bare AF install — {@link #isAnchor} is false everywhere,
  * {@link #bothEndsAnchored} can never be true, and
  * {@link StrainSpanCoilItem#getMaxLength} returns exactly what IE's own coil
- * returns. That is the whole "AF alone behaves as it did in 1.0.5" guarantee, and
- * {@code StrainSpanGameTests} pins it.
+ * returns.
+ *
+ * That is half of the "AF alone behaves as it did in 1.0.5" guarantee. The other
+ * half is that it must not TALK about the rule either: a player with AF and IE
+ * and nothing else has no dead-end block in their game, so a tooltip promising a
+ * span "between two dead-ends" or a refusal asking for one names hardware that
+ * does not exist and displaces a message IE had already got right. Everything the
+ * rule says is therefore gated on {@link #anchorsExist()}, and
+ * {@code StrainSpanGameTests} pins both halves.
  *
  * <h2>Why the rule cannot live anywhere else</h2>
  * IE asks the coil for a length, and asks it with the stack alone:
@@ -82,6 +90,32 @@ public final class StrainSpans
 	}
 
 	/**
+	 * Does this game contain any strain hardware at all?
+	 *
+	 * The rule is silent when the answer is no, and that silence is the whole of
+	 * the promise to a bare AF install. It is not enough for the doubling to be
+	 * unreachable with an empty tag — {@link StrainSpanCoilItem} must also not
+	 * SPEAK about it. A player with AF and IE and nothing else has no dead-end
+	 * block in their game, so a tooltip promising twice the reach "between two
+	 * dead-ends", or a refusal telling them to build one, names hardware that does
+	 * not exist and replaces a message (IE's own "Too far") that was correct.
+	 * Everything the rule says to a player is gated on this.
+	 *
+	 * Read off {@code BuiltInRegistries.BLOCK} rather than off a level, because the
+	 * two callers that need it most have no level to hand: a tooltip drawn in the
+	 * inventory and the held-link overlay. Block tags are bound onto the static
+	 * registry on both sides — the server on datapack reload, the client on the tag
+	 * sync that follows login — so this is the same object, and the same answer,
+	 * that {@code level.registryAccess().registryOrThrow(Registries.BLOCK)} gives.
+	 * Before any tags are bound at all (the main menu) it answers false, which is
+	 * the safe direction: the rule stays quiet rather than advertising early.
+	 */
+	public static boolean anchorsExist()
+	{
+		return BuiltInRegistries.BLOCK.getTag(STRAIN_ANCHORS).map(anchors -> anchors.size() > 0).orElse(false);
+	}
+
+	/**
 	 * IE's own endpoint resolution, in the one form we need it: the block a wire
 	 * would actually land on when this one is clicked. Clicking a transformer's
 	 * lower half resolves to the block above, and it is that block IE measures
@@ -108,17 +142,51 @@ public final class StrainSpans
 	 *
 	 * The stored end needs no master resolution — IE stores the connection point
 	 * it already resolved on the first click, so its position IS the master.
+	 *
+	 * <h2>Why the far end is read, not merely peeked at if convenient</h2>
+	 * This once refused to judge a far end whose chunk was not loaded, on the
+	 * grounds that reading it would force-load the chunk. That was backwards on
+	 * both counts.
+	 *
+	 * It is backwards on cost, because IE force-loads that exact chunk two lines
+	 * later regardless: {@code WireCoilItem#doCoilUse} calls
+	 * {@code world.getBlockEntity(storedLink.cp().position())} BEFORE it asks the
+	 * coil for a length, and {@code Level#getBlockEntity} goes through
+	 * {@code getChunkAt}, which loads on the server. Declining the read saved
+	 * nothing; it only meant deciding the rule on less information than IE decides
+	 * the connection on.
+	 *
+	 * And it is backwards on reach, because the far end being unloaded is the
+	 * NORMAL case for exactly the spans this rule exists for. The player stands at
+	 * the near end when the second click lands, and a dedicated server's default
+	 * view distance is 10 chunks — 160 blocks — while a doubled AF span is 192. So
+	 * every span in the last stretch of its own range silently lost the doubling
+	 * and was refused with a message telling the player to build the dead-end they
+	 * were standing at. On a view-distance-8 server it was two thirds of the extra
+	 * range.
+	 *
+	 * The client reads the same expression and cannot force-load anything: an
+	 * unloaded chunk answers air there, which is not an anchor. That divergence is
+	 * the overlay's to handle, and it does — see {@code StrainSpanOverlay}.
 	 */
 	public static boolean bothEndsAnchored(Level level, ItemStack coil, WireType wire, BlockPos clicked, TargetingInfo target)
 	{
 		WireLink stored = coil.get(IEApiDataComponents.WIRE_LINK);
 		if(stored==null||!stored.dimension().equals(level.dimension()))
 			return false;
-		BlockPos far = stored.cp().position();
-		// An unloaded far end is not ours to judge: reading its state would force
-		// -load the chunk, and IE fails that connection as an invalid point anyway.
-		if(!level.isLoaded(far)||!isAnchor(level, far))
-			return false;
+		return isAnchor(level, stored.cp().position())&&isAnchorEnd(level, clicked, wire, target);
+	}
+
+	/**
+	 * Is the connector this click would land on a strain anchor?
+	 *
+	 * Split out because the two ends are known in different ways and, on the
+	 * client, with different confidence: the clicked end is always under the
+	 * player's cursor and therefore always loaded, while the stored end may be
+	 * hundreds of blocks behind them.
+	 */
+	public static boolean isAnchorEnd(Level level, BlockPos clicked, WireType wire, TargetingInfo target)
+	{
 		BlockPos near = connectionMaster(level, clicked, wire, target);
 		return near!=null&&isAnchor(level, near);
 	}

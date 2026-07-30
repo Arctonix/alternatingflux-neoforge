@@ -5,25 +5,36 @@ import antibluequirk.alternatingflux.block.AFBlocks;
 import antibluequirk.alternatingflux.wire.AFWireType;
 import antibluequirk.alternatingflux.wire.StrainSpanCoilItem;
 import antibluequirk.alternatingflux.wire.StrainSpans;
+import blusunrize.immersiveengineering.api.IEApiDataComponents;
 import blusunrize.immersiveengineering.api.IEProperties;
 import blusunrize.immersiveengineering.api.wires.Connection;
 import blusunrize.immersiveengineering.api.wires.ConnectionPoint;
 import blusunrize.immersiveengineering.api.wires.GlobalWireNetwork;
 import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
+import blusunrize.immersiveengineering.api.wires.utils.WireLink;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * What Alternating Flux alone can be held to.
@@ -187,6 +198,116 @@ public class StrainSpanGameTests
 		helper.succeed();
 	}
 
+	/**
+	 * (g) ★ AND IT SAYS NOTHING. A bare AF install must be unchanged in what the
+	 * player is TOLD, not only in which wires go up — this is a mod that has already
+	 * shipped, and a player with AF and IE and nothing else has no dead-end block in
+	 * their game at all.
+	 *
+	 * Both halves of (e) are checked here, on the same 100-block span (e) refuses:
+	 * the coil must hand that click back to IE so the player reads IE's own
+	 * "Too far", and the tooltip must not carry the two-reaches line. Either one
+	 * would have a bare install quoting a 192-block span it can never take and
+	 * naming hardware from a mod that is not installed.
+	 *
+	 * (e) could not see this: it asserted that no wire appeared and never asked what
+	 * the player was told.
+	 */
+	@GameTest(template = TEMPLATE, timeoutTicks = 200)
+	public static void bareAfSaysNothingAboutStrain(GameTestHelper helper)
+	{
+		int span = 100;
+		BlockPos west = relayPair(helper, span);
+		BlockPos east = relayPos(span);
+
+		helper.runAfterDelay(2, () -> {
+			StrainSpanCoilItem coil = coil(helper);
+			ItemStack stack = new ItemStack(coil, 4);
+
+			// The register really is empty here, so the two assertions below are about
+			// the empty-tag case and not about some other reason for silence.
+			helper.assertTrue(!StrainSpans.anchorsExist(),
+					"a bare AF install reports strain hardware in "+StrainSpans.STRAIN_ANCHORS.location()
+							+"; this test no longer covers the case it is named for");
+
+			// (1) The message. 100 blocks is inside the band the rule speaks in --
+			// past AF's 96, within the doubled 192 -- so this is precisely the click
+			// that used to be answered with "build a dead-end at both ends".
+			helper.assertTrue(span > AFWireType.AF.getMaxLength()
+							&&span <= AFWireType.AF.getMaxLength()*StrainSpans.SPAN_MULTIPLIER,
+					"test is vacuous: "+span+" blocks is outside the band the rule speaks in");
+			Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+			player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+			click(helper, player, west);
+			helper.assertTrue(stack.has(IEApiDataComponents.WIRE_LINK),
+					"harness broken: the first click stored no link, so there is no span to refuse");
+			helper.assertTrue(coil.strainRefusal(context(helper, player, east))==null,
+					"with no strain hardware installed the AF coil still blames a missing dead-end;"
+							+" the player is sent looking for a block their game does not contain,"
+							+" in place of IE's own \"too far\"");
+
+			// (2) The tooltip. Same claim, on the item rather than in chat.
+			List<Component> lines = new ArrayList<>();
+			coil.appendHoverText(new ItemStack(coil), Item.TooltipContext.of(helper.getLevel()),
+					lines, TooltipFlag.NORMAL);
+			for(Component line : lines)
+				helper.assertTrue(!(line.getContents() instanceof TranslatableContents t
+								&&StrainSpans.TOOLTIP_SPAN.equals(t.getKey())),
+						"the AF coil's tooltip advertises a "
+								+coil.getStrainSpanLength(new ItemStack(coil))
+								+"-block span between dead-ends in a game with no dead-ends in it");
+			helper.succeed();
+		});
+	}
+
+	/**
+	 * (h) ★ THE FAR END IS READ, NOT SKIPPED WHEN IT IS INCONVENIENT.
+	 *
+	 * The rule used to decline to judge a far end whose chunk was not loaded. That
+	 * quietly cost the feature most of its own range: the player stands at the near
+	 * end when the second click lands, and a dedicated server's default view
+	 * distance is 160 blocks while a doubled AF span is 192.
+	 *
+	 * This pins the absence of that guard without depending on chunk-unload timing.
+	 * The far end is put a kilometre away, in a chunk nothing in this test holds a
+	 * ticket on, and the assertion is that asking the question LOADED it: a
+	 * reintroduced {@code isLoaded} check would return before the read and leave the
+	 * chunk absent. That IE force-loads the very same chunk moments later --
+	 * {@code doCoilUse} calls {@code getBlockEntity} on the stored position before it
+	 * asks the coil for a length -- is why the guard bought nothing in the first
+	 * place.
+	 *
+	 * The answer itself is false, as it must be: a kilometre of untouched world is
+	 * not an anchor. It is the loading that is under test.
+	 */
+	@GameTest(template = TEMPLATE)
+	public static void unloadedFarEndIsStillJudged(GameTestHelper helper)
+	{
+		ServerLevel level = helper.getLevel();
+		BlockPos near = helper.absolutePos(relayPos(0));
+		BlockPos far = near.offset(1024, 0, 0);
+		helper.assertTrue(!level.isLoaded(far),
+				"harness broken: the far chunk at "+far+" was already loaded, so this test"
+						+" cannot tell a read from a skipped read");
+
+		ItemStack stack = new ItemStack(coil(helper));
+		stack.set(IEApiDataComponents.WIRE_LINK, WireLink.create(
+				new ConnectionPoint(far, 0), level, BlockPos.ZERO,
+				StrainSpans.targeting(Direction.UP, far, Vec3.atCenterOf(far))));
+
+		boolean anchored = StrainSpans.bothEndsAnchored(
+				level, stack, AFWireType.AF, near,
+				StrainSpans.targeting(Direction.UP, near, Vec3.atCenterOf(near)));
+		helper.assertTrue(!anchored,
+				"empty world a kilometre away reported as a strain anchor");
+		helper.assertTrue(level.isLoaded(far),
+				"the rule refused to look at a far end whose chunk was not loaded."
+						+" On a default server that is every span past 160 blocks -- the last"
+						+" stretch of the doubled reach -- refused with a message telling the"
+						+" player to build the dead-end they are standing at");
+		helper.succeed();
+	}
+
 	// ---- world building --------------------------------------------------
 
 	private static StrainSpanCoilItem coil(GameTestHelper helper)
@@ -241,10 +362,15 @@ public class StrainSpanGameTests
 
 	private static void click(GameTestHelper helper, Player player, BlockPos rel)
 	{
+		player.getItemInHand(InteractionHand.MAIN_HAND).getItem().useOn(context(helper, player, rel));
+	}
+
+	/** The context one click would build, without making the click. */
+	private static UseOnContext context(GameTestHelper helper, Player player, BlockPos rel)
+	{
 		BlockPos abs = helper.absolutePos(rel);
-		BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false);
-		player.getItemInHand(InteractionHand.MAIN_HAND).getItem()
-				.useOn(new net.minecraft.world.item.context.UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+		return new UseOnContext(player, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false));
 	}
 
 	// ---- reading the result ----------------------------------------------

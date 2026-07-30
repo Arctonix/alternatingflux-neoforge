@@ -11,5 +11,5 @@
   "desc.alternatingflux.info.reach": "Reach %s / %s",
   "desc.alternatingflux.info.strainReach": "Strain span %s / %s",
 
-  "chat.alternatingflux.warning.needsBothAnchors": "Too far without strain: %s blocks on relays, %s only with a dead-end at both ends"
+  "chat.alternatingflux.warning.needsBothAnchors": "Too far: this coil reaches %s blocks, or %s between two dead-ends"
 }

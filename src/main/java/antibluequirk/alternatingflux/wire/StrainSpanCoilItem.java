@@ -142,7 +142,13 @@ public class StrainSpanCoilItem extends WireCoilItem
 	 * Where the ONLY thing standing between the click and a wire is the missing
 	 * anchor, say that instead.
 	 *
-	 * Deliberately narrow. It speaks only when the span is longer than the
+	 * Deliberately narrow. FIRST because of {@link StrainSpans#anchorsExist()}: in
+	 * a game with no strain hardware in it there is no missing anchor to name, the
+	 * doubled reach was never available, and "too far" is simply the truth. Saying
+	 * anything else there would send a bare AF player looking for a block their
+	 * game does not contain, in place of a message IE had already got right.
+	 *
+	 * Then narrow on distance too. It speaks only when the span is longer than the
 	 * ordinary reach AND within the doubled one: shorter and IE connects the wire,
 	 * longer and no anchor would have helped, so IE's own "Too far" is the honest
 	 * answer and is left alone. It also replicates IE's earlier tests — not a
@@ -161,6 +167,11 @@ public class StrainSpanCoilItem extends WireCoilItem
 		Level level = ctx.getLevel();
 		ItemStack stack = ctx.getItemInHand();
 		if(player==null)
+			return null;
+
+		// No strain hardware in this game: nothing was ever withheld, so there is
+		// nothing to explain. IE's "Too far" is the whole truth here.
+		if(!StrainSpans.anchorsExist())
 			return null;
 
 		// Only ever a SECOND click: with nothing stored there is no span to measure.
@@ -199,13 +210,21 @@ public class StrainSpanCoilItem extends WireCoilItem
 	 * Both reaches, stated on the item, because the rule is invisible otherwise —
 	 * a player holding this coil has no other way to learn that the number changes
 	 * with what is on the far end.
+	 *
+	 * Stated only where the rule is reachable. With no strain hardware installed
+	 * the second number is not a longer reach a player could go and earn; it is a
+	 * distance nothing in their game can produce, quoted beside the name of a block
+	 * they cannot craft. A shipped item does not advertise hardware from a mod the
+	 * player does not have — so with the tag empty this line is simply absent and
+	 * the tooltip is the one 1.0.5 printed.
 	 */
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag)
 	{
-		list.add(Component.translatable(
-						StrainSpans.TOOLTIP_SPAN, getWireType(stack).getMaxLength(), getStrainSpanLength(stack))
-				.withStyle(ChatFormatting.GRAY));
+		if(StrainSpans.anchorsExist())
+			list.add(Component.translatable(
+							StrainSpans.TOOLTIP_SPAN, getWireType(stack).getMaxLength(), getStrainSpanLength(stack))
+					.withStyle(ChatFormatting.GRAY));
 		// Last, so IE's dynamic "attached to X, Y, Z" line reads as current state
 		// rather than as part of the description.
 		super.appendHoverText(stack, context, list, flag);
