@@ -5,5 +5,11 @@
   "item.alternatingflux.wire_constantan": "康铜线",
 
   "block.alternatingflux.connector_af_relay": "超高压继电器",
-  "block.alternatingflux.connector_af_transformer": "超高压变压器"
+  "block.alternatingflux.connector_af_transformer": "超高压变压器",
+
+  "desc.alternatingflux.info.coilSpan": "可架设 %s 格，两端均为耐张终端时可达 %s 格",
+  "desc.alternatingflux.info.reach": "距离 %s / %s",
+  "desc.alternatingflux.info.strainReach": "耐张档距 %s / %s",
+
+  "chat.alternatingflux.warning.needsBothAnchors": "距离过远：普通支撑最多 %s 格，两端均为耐张终端时可达 %s 格"
 }

@@ -46,6 +46,15 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        // ./gradlew runGameTestServer -- runs the suite headless and exits
+        // non-zero on a failure. Without a standing task the gametests are
+        // reachable only by typing /test runall inside a dev run, which means an
+        // ordinary `gradlew build` stays green while the behaviour they guard is
+        // broken.
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
     }
 
     mods {

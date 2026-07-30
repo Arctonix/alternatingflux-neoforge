@@ -2,3 +2,7 @@ build/
 .gradle/
 run/
 run-server/
+
+# gameTestServer run leaves these in the project root
+logs/
+config/
