@@ -28,6 +28,13 @@ repositories {
     }
 }
 
+// The two gametest run directories, named once because two things read them: the
+// runs below, and the check at the bottom of this file that reads the log each run
+// wrote. run-gametest-anchored is load-bearing beyond that — see the comment on
+// gameTestServerAnchored and StrainSpanFixture.ANCHORED_RUN_DIRECTORY.
+def bareRunDirectory = file('run-gametest')
+def anchoredRunDirectory = file('run-gametest-anchored')
+
 neoForge {
     version = project.version_neoforge
 
@@ -57,7 +64,7 @@ neoForge {
         // five live MC lines that nothing changed.
         gameTestServer {
             type = 'gameTestServer'
-            gameDirectory = file('run-gametest')
+            gameDirectory = bareRunDirectory
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
         // The SAME suite in the only other install shape AF has to work in: with an
@@ -74,7 +81,7 @@ neoForge {
         // green. Keep it in step with StrainSpanFixture.ANCHORED_RUN_DIRECTORY.
         gameTestServerAnchored {
             type = 'gameTestServer'
-            gameDirectory = file('run-gametest-anchored')
+            gameDirectory = anchoredRunDirectory
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
             systemProperty 'alternatingflux.gametest.anchors', 'true'
         }
@@ -100,6 +107,85 @@ dependencies {
 tasks.named('jar', Jar).configure {
     exclude 'gametest_anchors/**'
 }
+
+// ★ A RUN THAT NEVER RAN IS NOT A PASS.
+//
+// ModDevGradle's run tasks report the game's exit code, and a game that dies during
+// MOD LOADING exits ZERO. FML catches the failure, prints "<mod> has failed to load
+// correctly", shuts the server down tidily and returns 0; Gradle prints BUILD
+// SUCCESSFUL with not one test having run. A FAILING test does exit non-zero, so the
+// hole is asymmetric and silent — a broken assertion is red, a dead game is green —
+// and that is exactly the wrong way round for what this suite is for.
+//
+// It is load-bearing here rather than merely untidy. The strain-span rule is a mixin
+// into a method body inside a mod we do not control, deliberately set to fail SOFT
+// (require = 0 on every handler — see WireCoilItemMixin), which means an Immersive
+// Engineering that moves that method takes the feature away without a word in the
+// log. This suite is the ONLY thing that would ever say so. It must not also be the
+// thing that says nothing when the game will not start at all — and the near miss is
+// concrete rather than hypothetical: putting require back to 1 is a one-character
+// change that kills the game at load, and before this check it was a green build.
+//
+// So each run is made to prove it ran, out of the log it wrote:
+//   - the log has to exist, and to be THIS run's — it is deleted beforehand, so last
+//     run's success cannot be mistaken for this one's;
+//   - it has to carry vanilla's own "All N required tests passed" summary; and
+//   - N has to be the number of @GameTest methods in the suite, so a run that
+//     started, loaded, and then registered none of them is not a pass either.
+
+/**
+ * The suite's own size, read off the source rather than written down in a second
+ * place to drift. Both installs run every test — the ones that are about the other
+ * install hand themselves in — so both runs must report this number.
+ */
+def gameTestSources = file('src/main/java/antibluequirk/alternatingflux/gametest')
+int declaredGameTests = 0
+gameTestSources.eachFileRecurse { File f ->
+    if(f.name.endsWith('.java'))
+        f.eachLine('UTF-8') { String line -> if(line ==~ /\s*@GameTest\s*\(.*/) declaredGameTests++ }
+}
+
+def proveItRan = { String taskName, File gameDirectory ->
+    File log = new File(gameDirectory, 'logs/latest.log')
+    tasks.named(taskName).configure {
+        // A run task declares no outputs, so Gradle already always executes it; said
+        // out loud because everything below is worthless if the task is ever skipped.
+        outputs.upToDateWhen { false }
+        // Last run's log is not evidence about this one.
+        doFirst { log.delete() }
+        doLast {
+            if(!log.isFile())
+                throw new GradleException("$taskName wrote no log at $log, so it cannot have run"
+                        + " the gametest suite. Gradle reports a game that died during mod loading"
+                        + " as a SUCCESS; the task output above is why it never started.")
+
+            String text = log.getText('UTF-8')
+            def summary = text =~ /All (\d+) required tests passed/
+            if(!summary.find())
+            {
+                String loadFailure = log.readLines().find { it.contains('has failed to load correctly') }
+                throw new GradleException("$taskName finished without running the gametest suite:"
+                        + " nothing in $log says \"All N required tests passed\"."
+                        + (loadFailure!=null
+                                ? "\nThe game failed to load:\n  "+loadFailure.trim()
+                                : "\nThe game printed no test summary at all; read $log.")
+                        + "\nThat exits 0 on its own and would otherwise have been a green build.")
+            }
+
+            int ran = summary.group(1) as int
+            if(ran!=declaredGameTests)
+                throw new GradleException("$taskName ran $ran gametests but $gameTestSources declares"
+                        + " $declaredGameTests. Every test runs in both installs, so a run short of"
+                        + " tests has skipped some of them silently."
+                        + "\n(That number follows the source: it is the count of @GameTest methods"
+                        + " there. A mismatch means the game did not see what is written.)")
+
+            logger.lifecycle("$taskName: all $ran gametests passed.")
+        }
+    }
+}
+proveItRan('runGameTestServer', bareRunDirectory)
+proveItRan('runGameTestServerAnchored', anchoredRunDirectory)
 
 // Both installs, in one command. The suite is not "passed" until both are.
 tasks.register('gameTest') {
