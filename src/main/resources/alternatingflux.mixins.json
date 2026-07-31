@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8.5",
+  "package": "antibluequirk.alternatingflux.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "WireCoilItemMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

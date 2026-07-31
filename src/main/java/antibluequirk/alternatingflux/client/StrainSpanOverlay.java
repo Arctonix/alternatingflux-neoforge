@@ -1,9 +1,9 @@
 package antibluequirk.alternatingflux.client;
 
 import antibluequirk.alternatingflux.AlternatingFlux;
-import antibluequirk.alternatingflux.wire.StrainSpanCoilItem;
 import antibluequirk.alternatingflux.wire.StrainSpans;
 import blusunrize.immersiveengineering.api.IEApiDataComponents;
+import blusunrize.immersiveengineering.api.wires.IWireCoil;
 import blusunrize.immersiveengineering.api.wires.WireType;
 import blusunrize.immersiveengineering.api.wires.utils.WireLink;
 import net.minecraft.client.DeltaTracker;
@@ -129,7 +129,12 @@ public final class StrainSpanOverlay
 		for(InteractionHand hand : InteractionHand.values())
 		{
 			ItemStack held = player.getItemInHand(hand);
-			if(!(held.getItem() instanceof StrainSpanCoilItem coil))
+			// Any coil, not just ours: the rule applies to every coil in the game
+			// (see WireCoilItemMixin), so the readout has to as well or a player
+			// holding IE's steel coil between two dead-ends would watch this line go
+			// red over the stretch where the connection actually succeeds — which is
+			// the exact bug this layer exists to fix.
+			if(!(held.getItem() instanceof IWireCoil coil))
 				continue;
 			WireLink link = held.get(IEApiDataComponents.WIRE_LINK);
 			if(link==null)
@@ -141,7 +146,7 @@ public final class StrainSpanOverlay
 
 	private static void draw(
 			GuiGraphics graphics, Minecraft mc, Player player, Level level,
-			ItemStack held, StrainSpanCoilItem coil, WireLink link
+			ItemStack held, IWireCoil coil, WireLink link
 	)
 	{
 		BlockPos far = link.cp().position();
@@ -164,7 +169,10 @@ public final class StrainSpanOverlay
 				&&StrainSpans.isAnchorEnd(level, blockAim.getBlockPos(), wire,
 				StrainSpans.targeting(blockAim.getDirection(), blockAim.getBlockPos(), blockAim.getLocation()));
 
-		int max = strain?coil.getStrainSpanLength(held): wire.getMaxLength();
+		// The number IE will actually ask the coil for, not the wire's own, so a coil
+		// that answers something else for its own reasons is still reported honestly.
+		int ordinary = coil.getMaxLength(held);
+		int max = strain?StrainSpans.strainSpanLength(ordinary): ordinary;
 		int distance = Mth.ceil(Math.sqrt(distanceSq));
 		// IE's own "in range" colour for its held-link line, so the two agree.
 		// Read here rather than into a constant: WireType.ELECTRUM is a static

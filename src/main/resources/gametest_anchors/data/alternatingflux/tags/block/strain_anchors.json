@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "alternatingflux:connector_af_relay",
+    "immersiveengineering:connector_hv_relay"
+  ]
+}

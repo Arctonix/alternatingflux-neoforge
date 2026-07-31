@@ -3,6 +3,14 @@ loaderVersion = "[4,)"
 license = "Custom — see LICENSE file"
 issueTrackerURL = "https://github.com/Arctonix/alternatingflux-neoforge/issues"
 
+# The strain-span rule, applied inside Immersive Engineering's own coil-use path so
+# that it reaches every coil in the game rather than only the two AF registers.
+# The config is deliberately NOT required and its handlers are all require = 0: if a
+# future IE moves the method this is pinned to, Mixin logs a warning and drops the
+# mixin instead of killing the game. See WireCoilItemMixin.
+[[mixins]]
+config = "alternatingflux.mixins.json"
+
 [[mods]]
 modId = "${mod_id}"
 version = "${mod_version}"

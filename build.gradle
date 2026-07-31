@@ -51,9 +51,32 @@ neoForge {
         // reachable only by typing /test runall inside a dev run, which means an
         // ordinary `gradlew build` stays green while the behaviour they guard is
         // broken.
+        //
+        // A BARE install: nothing in the strain-anchor tag, which is what every
+        // player who installs only AF and IE has. This run is the guarantee to the
+        // five live MC lines that nothing changed.
         gameTestServer {
             type = 'gameTestServer'
+            gameDirectory = file('run-gametest')
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        // The SAME suite in the only other install shape AF has to work in: with an
+        // add-on's dead-ends in the tag. The fixture datapack that puts them there
+        // is mounted by StrainSpanFixture and only when this property is set, so it
+        // cannot leak into a player's game or into the run above. A datapack is
+        // chosen once at server start, so the two installs cannot share one run.
+        //
+        // The directory name is load-bearing, not cosmetic: it is the only evidence
+        // the suite has that this JVM is the anchored run which does NOT come from
+        // the property below, and StrainSpanGameTests#runModeMatchesFixture checks
+        // the two against each other. A property that silently failed to arrive
+        // would otherwise turn every doubling test into a no-op and still report
+        // green. Keep it in step with StrainSpanFixture.ANCHORED_RUN_DIRECTORY.
+        gameTestServerAnchored {
+            type = 'gameTestServer'
+            gameDirectory = file('run-gametest-anchored')
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+            systemProperty 'alternatingflux.gametest.anchors', 'true'
         }
     }
 
@@ -69,6 +92,22 @@ dependencies {
     // Format: curse.maven:<slug>-<projectId>:<fileId>
     implementation "curse.maven:immersive-engineering-${curse_ie_project}:${curse_ie_file}"
 }
+
+// The gametest fixture datapack stands in for an add-on's strain hardware and must
+// never reach a player: it names AF's own relay as a dead-end, which is exactly what
+// AF promises not to do. It stays in the source tree, where the dev runs read it out
+// of build/resources/main, and out of the published artifact.
+tasks.named('jar', Jar).configure {
+    exclude 'gametest_anchors/**'
+}
+
+// Both installs, in one command. The suite is not "passed" until both are.
+tasks.register('gameTest') {
+    group = 'verification'
+    description = 'Runs the gametest suite in both installs: bare AF, and AF with the strain-anchor fixture datapack.'
+    dependsOn 'runGameTestServer', 'runGameTestServerAnchored'
+}
+tasks.named('runGameTestServerAnchored').configure { mustRunAfter 'runGameTestServer' }
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [

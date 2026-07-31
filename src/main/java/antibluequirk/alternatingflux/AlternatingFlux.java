@@ -38,10 +38,13 @@ public class AlternatingFlux
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     /**
-     * A {@link StrainSpanCoilItem}, not IE's plain WireCoilItem: the coil is where
-     * IE asks for a span's permitted length, so it is the only place the
-     * both-ends-anchored rule can be applied (see {@link StrainSpans}). With no
-     * strain anchors registered it behaves exactly as the plain coil did.
+     * An ordinary IE wire coil. The strain-span rule is NOT on this item — it is on
+     * IE's own coil-use path, where it reaches every coil in the game rather than
+     * only the ones we register (see {@link StrainSpans} and WireCoilItemMixin).
+     *
+     * Still constructed as a {@link StrainSpanCoilItem} only because that class is
+     * published API that AF: Interchange already builds against; the class carries
+     * no behaviour of its own any more, so this is the same item either way.
      */
     public static final DeferredHolder<Item, WireCoilItem> AF_WIRE_COIL =
             ITEMS.register("wirecoil_af", () -> new StrainSpanCoilItem(AFWireType.AF));

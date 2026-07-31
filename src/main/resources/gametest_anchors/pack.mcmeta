@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "description": "Alternating Flux gametest fixture: stands in for an add-on's strain hardware. Mounted only by the anchored gametest run.",
+    "pack_format": 48
+  }
+}
