@@ -1,0 +1,12 @@
+{
+  "autoload_priority": 0,
+  "energy": {
+    "category_weight": 30,
+    "entry_list": [
+      {
+        "source": "alternatingflux:strain_spans",
+        "weight": 0.4
+      }
+    ]
+  }
+}

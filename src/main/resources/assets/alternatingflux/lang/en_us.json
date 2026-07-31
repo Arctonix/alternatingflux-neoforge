@@ -5,5 +5,11 @@
   "item.alternatingflux.wire_constantan": "Constantan Wire",
 
   "block.alternatingflux.connector_af_relay": "AF Wire Relay",
-  "block.alternatingflux.connector_af_transformer": "AF Transformer"
+  "block.alternatingflux.connector_af_transformer": "AF Transformer",
+
+  "desc.alternatingflux.info.coilSpan": "Reaches %s blocks, %s between two dead-ends",
+  "desc.alternatingflux.info.reach": "Reach %s / %s",
+  "desc.alternatingflux.info.strainReach": "Strain span %s / %s",
+
+  "chat.alternatingflux.warning.needsBothAnchors": "Too far: this coil reaches %s blocks, or %s between two dead-ends"
 }

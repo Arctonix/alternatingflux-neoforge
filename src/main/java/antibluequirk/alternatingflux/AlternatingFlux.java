@@ -2,6 +2,8 @@ package antibluequirk.alternatingflux;
 
 import antibluequirk.alternatingflux.block.AFBlocks;
 import antibluequirk.alternatingflux.wire.AFWireType;
+import antibluequirk.alternatingflux.wire.StrainSpanCoilItem;
+import antibluequirk.alternatingflux.wire.StrainSpans;
 import blusunrize.immersiveengineering.api.wires.WireApi;
 import blusunrize.immersiveengineering.common.items.WireCoilItem;
 import net.minecraft.network.chat.Component;
@@ -43,8 +45,14 @@ public class AlternatingFlux
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB, MODID);
 
+    /**
+     * A {@link StrainSpanCoilItem}, not IE's plain WireCoilItem: the coil is where
+     * IE asks for a span's permitted length, so it is the only place the
+     * both-ends-anchored rule can be applied (see {@link StrainSpans}). With no
+     * strain anchors registered it behaves exactly as the plain coil did.
+     */
     public static final RegistryObject<WireCoilItem> AF_WIRE_COIL =
-            ITEMS.register("wirecoil_af", () -> new WireCoilItem(AFWireType.AF));
+            ITEMS.register("wirecoil_af", () -> new StrainSpanCoilItem(AFWireType.AF));
 
     public static final RegistryObject<Item> WIRE_CONSTANTAN =
             ITEMS.register("wire_constantan", () -> new Item(new Item.Properties()));

@@ -16,6 +16,24 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+// A TEST-ONLY source set. It ships a datapack that puts a block into
+// alternatingflux:strain_anchors, plus the stand-in hardware to put there and the
+// tests that prove the doubling against it. AF's own shipped tag must stay EMPTY
+// (the dead-ends live in add-ons), so the populator cannot live in src/main — and
+// because tags merge across PACKS rather than within one, it cannot be a second
+// copy of AF's own file either. It is therefore its own little mod.
+//
+// `jar` only ever consumes sourceSets.main, so none of this reaches the release.
+sourceSets {
+    gametest
+}
+
+configurations {
+    gametestImplementation.extendsFrom implementation
+}
+
+def anchorTests = project.hasProperty('strainAnchors')
+
 minecraft {
     // Parchment mappings for friendlier method/parameter names.
     mappings channel: 'parchment', version: "${version_parchment}-${version_parchment_mc}"
@@ -23,6 +41,17 @@ minecraft {
     copyIdeResources = true
 
     runs {
+        // Immersive Engineering ships mixins, and their refmap names methods in
+        // SRG while a dev run names them in Parchment — so IE's own
+        // AbstractBlockStateMixin cannot find entityInside and the game dies during
+        // bootstrap, before a single mod is loaded. Point mixin at ForgeGradle's
+        // SRG->MCP mapping and it resolves them. Applies to every run: nothing that
+        // launches Minecraft with IE on the path starts without it.
+        all {
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
@@ -41,6 +70,37 @@ minecraft {
             mods {
                 "${mod_id}" {
                     source sourceSets.main
+                }
+            }
+        }
+        // ./gradlew runGameTestServer                  -- a BARE AF install
+        // ./gradlew runGameTestServer -PstrainAnchors  -- with strain hardware
+        //
+        // Both run the suite headless and exit non-zero on a failure. Without a
+        // standing task the gametests are reachable only by typing /test runall
+        // inside a dev run, which means an ordinary `gradlew build` stays green
+        // while the behaviour they guard is broken.
+        //
+        // Two runs and not one, because the two guarantees contradict each other in
+        // a single world: StrainSpanGameTests pins what a bare install does, which
+        // requires the anchor tag to be EMPTY, and StrainAnchorGameTests pins the
+        // doubling, which requires it not to be. Each suite is filtered in by its
+        // own gametest namespace, so neither ever runs in the other's world.
+        gameTestServer {
+            workingDirectory project.file(anchorTests?'run-gametest-anchors':'run-gametest')
+            // A headless test server needs nothing like the heap a JVM helps itself
+            // to by default (a quarter of the machine), and this has to be able to
+            // run beside whatever else is building.
+            jvmArg '-Xmx2G'
+            property 'forge.enabledGameTestNamespaces', anchorTests?'afstraintest': mod_id
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+                if (anchorTests) {
+                    afstraintest {
+                        source sourceSets.gametest
+                    }
                 }
             }
         }
@@ -67,6 +127,16 @@ dependencies {
     // Immersive Engineering — the mod we extend. Pulled via CurseMaven.
     // Format: curse.maven:<slug>-<projectId>:<fileId>
     implementation fg.deobf("curse.maven:immersive-engineering-${curse_ie_project}:${curse_ie_file}")
+
+    // The test-only source set sees Minecraft, IE and AF; nothing sees it.
+    gametestImplementation sourceSets.main.output
+}
+
+// `jar` never consumes the gametest source set, which is the point of it — but
+// that also means an ordinary build would not notice it had stopped compiling.
+// Fold it into `check` so it cannot rot unnoticed.
+tasks.named('check').configure {
+    dependsOn tasks.named('gametestClasses')
 }
 
 tasks.named('processResources', ProcessResources).configure {

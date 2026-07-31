@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[47,48)"
+license = "Custom — see LICENSE file"
+
+# TEST-ONLY. Lives in the `gametest` source set, which the `jar` task never
+# consumes, so this is never part of a release. It exists to stand in for the
+# add-ons that ship real strain hardware, so Alternating Flux can prove its own
+# strain-span rule without depending on any of them.
+[[mods]]
+modId = "afstraintest"
+version = "0.0.0"
+displayName = "AF Strain Anchor Test Fixture"
+authors = "Arctonix"
+description = '''
+Test fixture for Alternating Flux's strain spans. Registers one AF-capable
+connector and puts it in alternatingflux:strain_anchors from its own datapack,
+so the doubling can be proved end to end in a gametest world. Not shipped.
+'''
+
+[[dependencies.afstraintest]]
+modId = "alternatingflux"
+mandatory = true
+versionRange = "[1.0.6,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.afstraintest]]
+modId = "immersiveengineering"
+mandatory = true
+versionRange = "[1.20.1-10.2,1.20.1-11)"
+ordering = "AFTER"
+side = "BOTH"

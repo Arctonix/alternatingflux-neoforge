@@ -6,3 +6,5 @@ out/
 run/
 run-server/
 *.log
+run-gametest/
+run-gametest-anchors/
