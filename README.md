@@ -17,8 +17,20 @@ Immersive Engineering's HV wires are great, but they top out at short distances 
 - **Low loss** — much lower power loss over distance than standard wires.
 - **High throughput** — carries **131,072 IF/t** (4× modern HV).
 - **Transmission only** — AF cannot power machines directly. You step down to HV through an **AF Transformer**, exactly like a real substation steps transmission voltage down to distribution.
+- **Live to the touch** — like IE's own HV line, an AF wire shocks anything that walks into it, harder than HV does. Both the reach and the damage are configurable, and setting the damage to `0` turns it off.
+- **Strain spans** — a line anchored at *both* ends may run twice as far. See below.
 
 Think of it as the EHV transmission backbone of your power grid: bulk power across distance on AF lines, stepped down to HV/MV/LV for actual use.
+
+## Strain spans
+
+Immersive Engineering measures every span against a single number. Alternating Flux adds one exception to it: with a **dead-end at both ends**, a line may reach twice as far. The rule describes the *structure*, not the wire, so it applies to **every coil in the game** — copper, electrum and steel each double from whatever their own tier reaches, exactly as AF does. One anchored end is not enough, and relays, insulator strings and busbars carry no tension, so they never grant it.
+
+The extra length is paid for in clearance: the slack is unchanged, so a span of twice the distance hangs about twice as deep.
+
+**Alternating Flux ships no strain hardware of its own.** With nothing tagged as an anchor — which is exactly how a plain install arrives — every wire in the game reaches precisely as far as it always has, and the mod says nothing about the rule anywhere in game. See *For add-on authors* below.
+
+The Engineer's Manual carries the full entry under *Electrical Grids*.
 
 ## How to use it
 
@@ -51,6 +63,24 @@ Server config (`alternatingflux-server.toml`) exposes:
 - `maxLength` — max length of a single AF wire in blocks (default 96)
 - `lossRatio` — power loss across a full-length run (default 0.0005)
 - `wireColour` — RGB colour of the AF wire (default 0xF6866C, the original salmon)
+- `damageRadius` — how far from an AF wire the shock reaches, in blocks (default 0.5; IE's HV uses 0.3)
+- `shockDamageBase` — base shock damage, scaled by how loaded the line is (default 25; IE's HV uses 15). Set to `0` to disable shocks entirely.
+
+A strain span is always twice `maxLength`; it is not separately configurable.
+
+## For add-on authors
+
+Alternating Flux is meant to be built on. It deliberately ships **no strain hardware**, only the rule and the socket to plug hardware into:
+
+```
+alternatingflux:strain_anchors     (block tag)
+```
+
+Put a block into that tag and a wire anchored to it at **both** ends may span twice the coil's normal reach. That is the entire contract. The tag ships empty, so a plain install behaves exactly as it did before the feature existed.
+
+The rule is enforced where Immersive Engineering itself checks span length — in the coil, on the second click — which means it applies to every coil, not only AF's, and it can only ever *lengthen* a span. A connector may still refuse a connection for its own reasons.
+
+This tag is public API. It will not be renamed or re-scoped.
 
 ## Credits
 

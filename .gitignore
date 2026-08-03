@@ -8,3 +8,6 @@ run-gametest-anchored/
 # gameTestServer run leaves these in the project root
 logs/
 config/
+
+# local tooling — never belongs in the published repo
+.af-*-workflow.js
