@@ -6,3 +6,6 @@ out/
 run/
 run-server/
 *.log
+
+# local tooling — never belongs in the published repo
+.af-*-workflow.js
