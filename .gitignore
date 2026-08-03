@@ -8,3 +8,6 @@ run-server/
 *.log
 run-gametest/
 run-gametest-anchors/
+
+# local tooling — never belongs in the published repo
+.af-*-workflow.js
